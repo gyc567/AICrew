@@ -1,0 +1,137 @@
+- generic [ref=e45]:
+  - navigation [ref=e46]:
+    - generic [ref=e47]:
+      - generic [ref=e49]: DreameClaw Crew
+      - generic [ref=e50]:
+        - link "🏛️ 广场" [ref=e51] [cursor=pointer]:
+          - /url: /plaza
+          - generic [ref=e52]: 🏛️
+          - generic [ref=e53]: 广场
+        - link "仪表盘" [ref=e54] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e56]
+          - generic [ref=e58]: 仪表盘
+    - generic [ref=e59]:
+      - generic [ref=e60]:
+        - link "M Meeseeks" [ref=e61] [cursor=pointer]:
+          - /url: /agents/3328c3e9-fa10-425b-a389-53e7818d9d32
+          - generic [ref=e63]: M
+          - generic [ref=e64]: Meeseeks
+        - button "置顶" [ref=e65] [cursor=pointer]:
+          - img [ref=e66]
+      - generic [ref=e68]:
+        - link "M Morty" [ref=e69] [cursor=pointer]:
+          - /url: /agents/e460f1f4-13f2-4097-9991-2cb69faade3c
+          - generic [ref=e71]: M
+          - generic [ref=e72]: Morty
+        - button "置顶" [ref=e73] [cursor=pointer]:
+          - img [ref=e74]
+    - generic [ref=e76]:
+      - generic [ref=e77]:
+        - link "新建数字员工" [ref=e78] [cursor=pointer]:
+          - /url: /agents/new
+          - img [ref=e80]
+          - generic [ref=e82]: 新建数字员工
+        - link "公司设置" [ref=e83] [cursor=pointer]:
+          - /url: /enterprise
+          - img [ref=e85]
+          - generic [ref=e88]: 公司设置
+        - link "公司管理" [ref=e89] [cursor=pointer]:
+          - /url: /admin/companies
+          - img [ref=e91]
+          - generic [ref=e94]: 公司管理
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - button "Collapse Sidebar" [ref=e97] [cursor=pointer]:
+            - img [ref=e98]
+          - button "通知" [ref=e100] [cursor=pointer]:
+            - img [ref=e101]
+          - button [ref=e104] [cursor=pointer]:
+            - img [ref=e105]
+          - button "EN" [ref=e108] [cursor=pointer]:
+            - img [ref=e109]
+            - generic [ref=e112]: EN
+        - generic [ref=e113]:
+          - generic "账户设置" [ref=e114] [cursor=pointer]:
+            - img [ref=e116]
+            - generic [ref=e119]:
+              - generic [ref=e120]: eric
+              - generic [ref=e121]: 超级管理员
+          - button "退出" [ref=e122] [cursor=pointer]:
+            - img [ref=e123]
+        - generic [ref=e125]: v1.7.0 b20260318.1118
+  - main [ref=e126]:
+    - generic [ref=e173]:
+      - generic [ref=e175]:
+        - heading "公司设置" [level=1] [ref=e176]
+        - generic [ref=e177]:
+          - generic [ref=e178]: 1 用户
+          - generic [ref=e179]: 0/2 运行中
+      - generic [ref=e180]:
+        - generic [ref=e181] [cursor=pointer]: 公司信息
+        - generic [ref=e182] [cursor=pointer]: 模型池
+        - generic [ref=e183] [cursor=pointer]: 工具
+        - generic [ref=e184] [cursor=pointer]: 技能管理
+        - generic [ref=e185] [cursor=pointer]: 邀请码
+        - generic [ref=e186] [cursor=pointer]: 配额
+        - generic [ref=e187] [cursor=pointer]: 用户
+        - generic [ref=e188] [cursor=pointer]: 组织架构
+        - generic [ref=e189] [cursor=pointer]: 审批
+        - generic [ref=e190] [cursor=pointer]: 审计日志
+      - generic [ref=e255]:
+        - button "+ 添加模型" [ref=e257] [cursor=pointer]
+        - generic [ref=e269]:
+          - heading "添加模型" [level=3] [ref=e270]
+          - generic [ref=e271]:
+            - generic [ref=e272]:
+              - generic [ref=e273]: Provider
+              - combobox [ref=e274]:
+                - option "Anthropic"
+                - option "OpenAI" [selected]
+                - option "OpenAI Responses"
+                - option "Azure OpenAI"
+                - option "DeepSeek"
+                - option "Qwen (DashScope)"
+                - option "MiniMax"
+                - option "OpenRouter"
+                - option "Zhipu"
+                - option "Gemini"
+                - option "Kimi (Moonshot)"
+                - option "vLLM"
+                - option "Ollama"
+                - option "SGLang"
+                - option "Custom"
+            - generic [ref=e275]:
+              - generic [ref=e276]: Model
+              - textbox "claude-sonnet-4-5" [ref=e277]: gpt-4o-mini
+            - generic [ref=e278]:
+              - generic [ref=e279]: 显示名称
+              - textbox "Claude Sonnet" [ref=e280]
+            - generic [ref=e281]:
+              - generic [ref=e282]: Base URL（可选）
+              - textbox "https://api.custom.com/v1" [ref=e283]: https://api.openai.com/v1
+            - generic [ref=e284]:
+              - generic [ref=e285]: API Key
+              - textbox "Enter API Key" [ref=e286]: sk-test123456789
+            - generic [ref=e288] [cursor=pointer]:
+              - checkbox "👁 Supports Vision (Multimodal) — Enable for models that can analyze images (GPT-4o, Claude, Qwen-VL, etc.)" [ref=e289]
+              - text: 👁 Supports Vision (Multimodal)
+              - generic [ref=e290]: — Enable for models that can analyze images (GPT-4o, Claude, Qwen-VL, etc.)
+            - generic [ref=e291]:
+              - generic [ref=e292]: Max Output Tokens
+              - spinbutton [ref=e293]: "16384"
+              - generic [ref=e294]: Override the default output token limit. Auto-filled from provider; adjust as needed.
+          - generic [ref=e295]:
+            - button "取消" [ref=e296] [cursor=pointer]
+            - button "Testing..." [active] [ref=e299] [cursor=pointer]
+            - button "保存" [ref=e298] [cursor=pointer]
+        - generic [ref=e260]:
+          - generic [ref=e261]:
+            - generic [ref=e262]: MiniMax-M2.7
+            - generic [ref=e263]:
+              - text: minimax/MiniMax-M2.7
+              - generic [ref=e264]: · https://api.minimaxi.com/anthropic
+          - generic [ref=e265]:
+            - generic [ref=e266]: 启用
+            - button "✏️ Edit" [ref=e267] [cursor=pointer]
+            - button "删除" [ref=e268] [cursor=pointer]

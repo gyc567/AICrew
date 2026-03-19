@@ -2,7 +2,11 @@
 
 import type { Agent, TokenResponse, User, Task, ChatMessage } from '../types';
 
-const API_BASE = '/api';
+// Use environment variable for API base URL (Vercel deployment)
+// Falls back to relative path for local development
+const API_BASE = import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL}/api`
+    : '/api';
 
 async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
     const token = localStorage.getItem('token');

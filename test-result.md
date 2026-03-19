@@ -1,7 +1,7 @@
 - generic [ref=e45]:
   - navigation [ref=e46]:
     - generic [ref=e47]:
-      - generic [ref=e49]: DreameClaw Crew
+      - generic [ref=e49]: AI Crew
       - generic [ref=e50]:
         - link "🏛️ 广场" [ref=e51] [cursor=pointer]:
           - /url: /plaza

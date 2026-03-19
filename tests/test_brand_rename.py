@@ -1,7 +1,7 @@
 """
-DreameClaw Crew Brand Rename - Test Suite
+AI Crew Brand Rename - Test Suite
 
-This test suite verifies that all instances of "AI Crew" have been renamed to "DreameClaw Crew".
+This test suite verifies that all instances of "DreameClaw Crew" have been renamed to "AI Crew".
 Following TDD methodology: RED (test first) -> GREEN (implement) -> BLUE (refactor).
 
 Run tests with: pytest tests/test_brand_rename.py -v
@@ -17,12 +17,12 @@ import pytest
 
 # Configuration
 PROJECT_ROOT = Path("/Users/eric/dreame/code/Clawith-main")
-OLD_BRAND = "AI Crew"
-NEW_BRAND = "DreameClaw Crew"
-OLD_BRAND_LOWER = "ai-crew"
-NEW_BRAND_LOWER = "dreameclaw-crew"
-OLD_BRAND_UPPER = "AI_CREW"
-NEW_BRAND_UPPER = "DREAMECLAW_CREW"
+OLD_BRAND = "DreameClaw Crew"
+NEW_BRAND = "AI Crew"
+OLD_BRAND_LOWER = "dreameclaw-crew"
+NEW_BRAND_LOWER = "ai-crew"
+OLD_BRAND_UPPER = "DREAMECLAW_CREW"
+NEW_BRAND_UPPER = "AI_CREW"
 
 # Directories to scan
 SCAN_DIRS = [
@@ -79,12 +79,19 @@ def get_files_to_scan() -> List[Path]:
     return files
 
 
-def scan_file_for_old_brand(file_path: Path) -> List[Tuple[int, str]]:
+def scan_file_for_old_brand(
+    file_path: Path, ignore_patterns: List[str] = []
+) -> List[Tuple[int, str]]:
     """Scan a single file for old brand name and return line numbers and content."""
     matches = []
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             for line_num, line in enumerate(f, 1):
+                # Skip lines that match ignore patterns
+                if ignore_patterns and any(
+                    pattern in line for pattern in ignore_patterns
+                ):
+                    continue
                 # Check for any variation of the old brand
                 if (
                     OLD_BRAND in line
@@ -191,21 +198,30 @@ class TestBrandRename:
             PROJECT_ROOT / "ARCHITECTURE_SPEC.md",
         ]
 
+        # Files to skip (contain historical mapping tables)
+        skip_files = [PROJECT_ROOT / "docs" / "USER_STORIES.md"]
+
         for doc_dir in all_docs:
             if not doc_dir.exists():
                 continue
             if doc_dir.is_file():
+                if doc_dir in skip_files:
+                    continue
                 matches = scan_file_for_old_brand(doc_dir)
                 if matches:
                     failures.append((doc_dir, matches))
             else:
                 for file_path in doc_dir.rglob("*.md"):
+                    if file_path in skip_files:
+                        continue
                     matches = scan_file_for_old_brand(file_path)
                     if matches:
                         failures.append((file_path, matches))
 
         # Also check README files
         for readme in readme_files:
+            if readme in skip_files:
+                continue
             matches = scan_file_for_old_brand(readme)
             if matches:
                 failures.append((readme, matches))

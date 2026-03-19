@@ -93,7 +93,7 @@ class MCPClient:
                     "params": {
                         "protocolVersion": "2024-11-05",
                         "capabilities": {},
-                        "clientInfo": {"name": "dreameclaw-crew", "version": "1.0"},
+                        "clientInfo": {"name": "ai-crew-crew", "version": "1.0"},
                     },
                 },
                 headers=self._headers(),
@@ -225,7 +225,7 @@ class MCPClient:
                     "params": {
                         "protocolVersion": "2024-11-05",
                         "capabilities": {},
-                        "clientInfo": {"name": "dreameclaw-crew", "version": "1.0"},
+                        "clientInfo": {"name": "ai-crew-crew", "version": "1.0"},
                     },
                 }
                 await client.post(messages_url, json=init_body, headers=headers_post)

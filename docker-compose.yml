@@ -2,13 +2,13 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: dreameclaw-crew
-      POSTGRES_PASSWORD: dreameclaw-crew
-      POSTGRES_DB: dreameclaw-crew
+      POSTGRES_USER: ai-crew
+      POSTGRES_PASSWORD: ai-crew
+      POSTGRES_DB: ai-crew
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U dreameclaw-crew" ]
+      test: [ "CMD-SHELL", "pg_isready -U ai-crew" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -27,14 +27,14 @@ services:
     build:
       context: ./backend
       args:
-        DREAMECLAW_CREW_PIP_INDEX_URL: ${DREAMECLAW_CREW_PIP_INDEX_URL:-}
-        DREAMECLAW_CREW_PIP_TRUSTED_HOST: ${DREAMECLAW_CREW_PIP_TRUSTED_HOST:-}
+        AI_CREW_PIP_INDEX_URL: ${AI_CREW_PIP_INDEX_URL:-}
+        AI_CREW_PIP_TRUSTED_HOST: ${AI_CREW_PIP_TRUSTED_HOST:-}
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-8008}:8000"
     command: ["/bin/bash", "/app/entrypoint.sh"]
     environment:
-      DATABASE_URL: postgresql+asyncpg://dreameclaw-crew:dreameclaw-crew@postgres:5432/dreameclaw-crew
+      DATABASE_URL: postgresql+asyncpg://ai-crew:ai-crew@postgres:5432/ai-crew
       REDIS_URL: redis://redis:6379/0
       AGENT_DATA_DIR: /data/agents
       AGENT_TEMPLATE_DIR: /app/agent_template
@@ -43,7 +43,7 @@ services:
       CORS_ORIGINS: '["*"]'
       FEISHU_APP_ID: ${FEISHU_APP_ID:-}
       FEISHU_APP_SECRET: ${FEISHU_APP_SECRET:-}
-      DOCKER_NETWORK: dreameclaw-crew_network
+      DOCKER_NETWORK: ai-crew_network
       # GitHub personal access token — fallback for AIHub/GitHub skill imports
       # when no tenant-level token is configured. Raises API rate limit from 60 to 5,000/hr.
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
@@ -82,4 +82,4 @@ volumes:
 
 networks:
   default:
-    name: dreameclaw-crew_network
+    name: ai-crew_network

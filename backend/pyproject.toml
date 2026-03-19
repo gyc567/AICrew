@@ -1,7 +1,7 @@
 [project]
-name = "dreameclaw-crew-backend"
+name = "ai-crew-crew-backend"
 version = "0.1.0"
-description = "DreameClaw Crew - Enterprise Digital Employee Platform Backend"
+description = "AI Crew - Enterprise Digital Employee Platform Backend"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi[standard]>=0.115.0",

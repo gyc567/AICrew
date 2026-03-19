@@ -27,7 +27,7 @@ def _default_agent_data_dir() -> str:
     """Use Docker path in containers, user-writable path on local hosts."""
     if _running_in_container():
         return "/data/agents"
-    return str(Path.home() / ".dreameclaw-crew" / "data" / "agents")
+    return str(Path.home() / ".ai-crew-crew" / "data" / "agents")
 
 
 def _read_version() -> str:
@@ -49,14 +49,14 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # App
-    APP_NAME: str = "DreameClaw Crew"
+    APP_NAME: str = "AI Crew"
     APP_VERSION: str = _read_version()
     DEBUG: bool = False
     SECRET_KEY: str = "change-me-in-production"
     API_PREFIX: str = "/api"
 
     # Database
-    DATABASE_URL: str = "postgresql+asyncpg://dreameclaw-crew:dreameclaw-crew@localhost:5432/dreameclaw-crew"
+    DATABASE_URL: str = "postgresql+asyncpg://ai-crew-crew:ai-crew-crew@localhost:5432/ai-crew-crew"
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -71,7 +71,7 @@ class Settings(BaseSettings):
     AGENT_TEMPLATE_DIR: str = "/app/agent_template"
 
     # Docker (for Agent containers)
-    DOCKER_NETWORK: str = "dreameclaw-crew_network"
+    DOCKER_NETWORK: str = "ai-crew-crew_network"
     OPENCLAW_IMAGE: str = "openclaw:local"
     OPENCLAW_GATEWAY_PORT: int = 18789
 

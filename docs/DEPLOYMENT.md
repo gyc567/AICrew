@@ -1,6 +1,6 @@
-# DreameClaw Crew 部署文档
+# AI Crew 部署文档
 
-> 本文档提供 DreameClaw Crew 项目的详细部署指南，从环境准备到生产部署，每一步都有清晰说明。
+> 本文档提供 AI Crew 项目的详细部署指南，从环境准备到生产部署，每一步都有清晰说明。
 
 ---
 
@@ -25,7 +25,7 @@
 | Docker | Latest | 容器化部署 |
 | Docker Compose | Latest | 编排工具 |
 
-> **注意**：DreameClaw Crew 不在本地运行任何 AI 模型，所有 LLM 推理由外部 API 提供商（OpenAI、Anthropic 等）处理。
+> **注意**：AI Crew 不在本地运行任何 AI 模型，所有 LLM 推理由外部 API 提供商（OpenAI、Anthropic 等）处理。
 
 ### 1.3 网络要求
 
@@ -41,12 +41,12 @@
 
 ```bash
 # 完整克隆
-git clone https://github.com/dataelement/DreameClaw Crew.git
+git clone https://github.com/dataelement/AI Crew.git
 
 # 或者浅克隆（仅下载最新提交，推荐国内用户）
-git clone --depth 1 https://github.com/dataelement/DreameClaw Crew.git
+git clone --depth 1 https://github.com/dataelement/AI Crew.git
 
-cd DreameClaw Crew
+cd AI Crew
 ```
 
 ### 2.2 运行安装脚本
@@ -92,8 +92,8 @@ bash restart.sh
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/dataelement/DreameClaw Crew.git
-cd DreameClaw Crew
+git clone https://github.com/dataelement/AI Crew.git
+cd AI Crew
 
 # 2. 复制环境变量文件
 cp .env.example .env
@@ -122,7 +122,7 @@ nano .env
 # ===================
 
 # 数据库连接（Docker 内部使用）
-DATABASE_URL=postgresql+asyncpg://dreameclaw-crew:dreameclaw-crew@postgres:5432/dreameclaw-crew
+DATABASE_URL=postgresql+asyncpg://ai-crew-crew:ai-crew-crew@postgres:5432/ai-crew-crew
 
 # Redis 连接
 REDIS_URL=redis://redis:6379/0
@@ -187,15 +187,15 @@ sudo apt install postgresql postgresql-contrib
 sudo -u postgres psql
 
 # 在 psql 中执行：
-CREATE USER dreameclaw-crew WITH PASSWORD 'dreameclaw-crew';
-CREATE DATABASE dreameclaw-crew OWNER dreameclaw-crew;
-GRANT ALL PRIVILEGES ON DATABASE dreameclaw-crew TO dreameclaw-crew;
+CREATE USER ai-crew-crew WITH PASSWORD 'ai-crew-crew';
+CREATE DATABASE ai-crew-crew OWNER ai-crew-crew;
+GRANT ALL PRIVILEGES ON DATABASE ai-crew-crew TO ai-crew-crew;
 \q
 ```
 
 #### 4.1.2 使用 SQLite（仅用于测试）
 
-如果只想快速测试，可以跳过 PostgreSQL 安装，DreameClaw Crew 会自动使用 SQLite。
+如果只想快速测试，可以跳过 PostgreSQL 安装，AI Crew 会自动使用 SQLite。
 
 ### 4.2 后端部署
 
@@ -279,8 +279,8 @@ docker compose up -d
 后端安装使用 pip 时，如需使用镜像加速：
 
 ```bash
-export DREAMECLAW_CREW_PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
-export DREAMECLAW_CREW_PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn
+export AI_CREW_PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+export AI_CREW_PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn
 ```
 
 然后运行安装脚本或 docker build。
@@ -377,7 +377,7 @@ curl http://localhost:8008/api/health
 # 检查 PostgreSQL 是否运行
 docker compose ps postgres
 # 或
-pg_isready -U dreameclaw-crew -h localhost
+pg_isready -U ai-crew-crew -h localhost
 ```
 
 #### 问题：端口被占用
@@ -406,7 +406,7 @@ npm install
 
 | 解决方案 | 命令 |
 |---------|------|
-| 浅克隆 | `git clone --depth 1 https://github.com/dataelement/DreameClaw Crew.git` |
+| 浅克隆 | `git clone --depth 1 https://github.com/dataelement/AI Crew.git` |
 | 下载发布包 | 访问 Releases 下载 .tar.gz |
 | 使用 git 代理 | `git config --global http.proxy socks5://127.0.0.1:1080` |
 
@@ -470,7 +470,7 @@ volumes:
 
 ## 十一、总结
 
-本部署文档涵盖了 DreameClaw Crew 的多种部署方式：
+本部署文档涵盖了 AI Crew 的多种部署方式：
 
 | 部署方式 | 适用场景 | 难度 |
 |---------|---------|------|

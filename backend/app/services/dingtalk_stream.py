@@ -77,7 +77,7 @@ class DingTalkStreamManager:
             main_loop = self._main_loop
 
             class AICrewChatbotHandler(dingtalk_stream.ChatbotHandler):
-                """Custom handler that dispatches messages to the DreameClaw Crew LLM pipeline."""
+                """Custom handler that dispatches messages to the AI Crew LLM pipeline."""
 
                 async def process(self, callback: dingtalk_stream.CallbackMessage):
                     """Handle incoming bot message from DingTalk Stream.

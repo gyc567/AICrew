@@ -1,16 +1,16 @@
-# DreameClaw Crew 品牌重命名 - 用户故事与测试计划
+# AI Crew 品牌重命名 - 用户故事与测试计划
 
 ## 一、用户故事 (User Stories)
 
 ### 用户故事 1: 配置文件品牌重命名
 
 **作为** 系统管理员  
-**我希望** 将所有配置文件中的 "DreameClaw Crew" 重命名为 "DreameClaw Crew"  
+**我希望** 将所有配置文件中的 "AI Crew" 重命名为 "AI Crew"  
 **以便** 品牌统一，提升产品形象
 
 #### 验收标准 (AC)
 
-- [ ] `pyproject.toml` 中的项目名称从 "DreameClaw Crew" 改为 "DreameClaw Crew"
+- [ ] `pyproject.toml` 中的项目名称从 "AI Crew" 改为 "AI Crew"
 - [ ] `docker-compose.yml` 中的网络名称和服务标签已更新
 - [ ] `backend/app/config.py` 中的应用名称已更新
 - [ ] `backend/alembic.ini` 中的配置已更新
@@ -101,30 +101,32 @@
 
 | TC ID | 测试名称 | 测试方法 | 预期结果 |
 |-------|---------|---------|---------|
-| TC-001 | 配置文件中无DreameClaw Crew残留 | grep搜索 | 0个匹配 |
-| TC-002 | 前端文件中无DreameClaw Crew残留 | grep搜索 | 0个匹配 |
-| TC-003 | 后端文件中无DreameClaw Crew残留 | grep搜索 | 0个匹配 |
-| TC-004 | 脚本文件中无DreameClaw Crew残留 | grep搜索 | 0个匹配 |
-| TC-005 | 文档中无DreameClaw Crew残留 | grep搜索 | 0个匹配 |
+| TC-001 | 配置文件中无AI Crew残留 | grep搜索 | 0个匹配 |
+| TC-002 | 前端文件中无AI Crew残留 | grep搜索 | 0个匹配 |
+| TC-003 | 后端文件中无AI Crew残留 | grep搜索 | 0个匹配 |
+| TC-004 | 脚本文件中无AI Crew残留 | grep搜索 | 0个匹配 |
+| TC-005 | 文档中无AI Crew残留 | grep搜索 | 0个匹配 |
 | TC-006 | 新品牌名称正确存在 | grep搜索AICrew | >0个匹配 |
 
 ---
 
 ## 三、重命名映射表
 
-| 原名称 | 新名称 |
+以下是从旧品牌名到新品牌名的映射（已执行）：
+
+| 旧名称 | 新名称 |
 |--------|--------|
-| DreameClaw Crew | DreameClaw Crew |
-| dreameclaw-crew | dreameclaw-crew |
-| DREAMECLAW_CREW | DREAMECLAW_CREW |
+| DreameClaw Crew | AI Crew |
+| dreameclaw-crew | ai-crew |
+| DREAMECLAW_CREW | AI_CREW |
 
 ---
 
 ## 四、执行计划
 
 ### Phase 1: 编写测试 (红色阶段)
-1. 创建测试脚本验证 DreameClaw Crew 存在
-2. 运行测试确认失败（因为现在是DreameClaw Crew）
+1. 创建测试脚本验证 AI Crew 存在
+2. 运行测试确认失败（因为现在是AI Crew）
 
 ### Phase 2: 实现修改 (绿色阶段)
 1. 批量替换配置文件

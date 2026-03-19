@@ -8,12 +8,12 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml ./
-ARG DREAMECLAW_CREW_PIP_INDEX_URL
-ARG DREAMECLAW_CREW_PIP_TRUSTED_HOST
-RUN if [ -n "$DREAMECLAW_CREW_PIP_INDEX_URL" ] && [ -n "$DREAMECLAW_CREW_PIP_TRUSTED_HOST" ]; then \
-        pip install --no-cache-dir --index-url "$DREAMECLAW_CREW_PIP_INDEX_URL" --trusted-host "$DREAMECLAW_CREW_PIP_TRUSTED_HOST" .; \
-    elif [ -n "$DREAMECLAW_CREW_PIP_INDEX_URL" ]; then \
-        pip install --no-cache-dir --index-url "$DREAMECLAW_CREW_PIP_INDEX_URL" .; \
+ARG AI_CREW_PIP_INDEX_URL
+ARG AI_CREW_PIP_TRUSTED_HOST
+RUN if [ -n "$AI_CREW_PIP_INDEX_URL" ] && [ -n "$AI_CREW_PIP_TRUSTED_HOST" ]; then \
+        pip install --no-cache-dir --index-url "$AI_CREW_PIP_INDEX_URL" --trusted-host "$AI_CREW_PIP_TRUSTED_HOST" .; \
+    elif [ -n "$AI_CREW_PIP_INDEX_URL" ]; then \
+        pip install --no-cache-dir --index-url "$AI_CREW_PIP_INDEX_URL" .; \
     else \
         pip install --no-cache-dir .; \
     fi
@@ -33,13 +33,13 @@ COPY --from=deps /usr/local/bin/ /usr/local/bin/
 # Copy application code
 COPY . .
 
-RUN useradd --create-home dreameclaw-crew && \
+RUN useradd --create-home ai-crew && \
     mkdir -p /data/agents && \
     chmod +x /app/entrypoint.sh && \
-    chown -R dreameclaw-crew:dreameclaw-crew /app /data
+    chown -R ai-crew:ai-crew /app /data
 
 # Note: USER is removed to allow entrypoint.sh to fix permissions of mounted volumes
-# at runtime. The entrypoint script will drop privileges to 'dreameclaw-crew' after fixing permissions.
+# at runtime. The entrypoint script will drop privileges to 'ai-crew' after fixing permissions.
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \

@@ -1,4 +1,4 @@
-# Contributing to DreameClaw Crew 🦞
+# Contributing to AI Crew 🦞
 
 Thanks for your interest in contributing! Whether it's a bug fix, new feature, translation, or documentation improvement — every contribution matters.
 
@@ -25,14 +25,14 @@ Thanks for your interest in contributing! Whether it's a bug fix, new feature, t
 | 📖 Documentation | README, guides, code comments |
 | 🧪 Tests | Unit tests, integration tests |
 
-**New to the project?** Look for issues labeled [`good first issue`](https://github.com/dataelement/DreameClaw Crew/labels/good%20first%20issue).
+**New to the project?** Look for issues labeled [`good first issue`](https://github.com/dataelement/AI Crew/labels/good%20first%20issue).
 
 ## Bug Reports
 
 When reporting a bug, please include:
 - Steps to reproduce
 - Expected vs actual behavior
-- DreameClaw Crew version and deployment method (Docker / Source)
+- AI Crew version and deployment method (Docker / Source)
 - Logs or screenshots if available
 
 **Priority guide:**
@@ -93,4 +93,4 @@ Para garantizar que todos los contribuidores puedan participar de manera efectiv
 
 ## Getting Help
 
-Stuck? Open a [Discussion](https://github.com/dataelement/DreameClaw Crew/discussions) or ask in the related issue. We're happy to help! 🙌
+Stuck? Open a [Discussion](https://github.com/dataelement/AI Crew/discussions) or ask in the related issue. We're happy to help! 🙌

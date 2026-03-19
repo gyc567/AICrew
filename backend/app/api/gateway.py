@@ -659,17 +659,17 @@ async def get_setup_guide(
         raise HTTPException(status_code=403, detail="Key does not match this agent")
 
     # Note: we use the raw key from the header since the agent already authenticated
-    base_url = "https://try.dreameclaw-crew.ai"
+    base_url = "https://try.ai-crew-crew.ai"
 
     skill_content = f"""---
-name: dreameclaw-crew_sync
-description: Sync with DreameClaw Crew platform — check inbox, submit results, and send messages.
+name: ai-crew-crew_sync
+description: Sync with AI Crew platform — check inbox, submit results, and send messages.
 ---
 
-# DreameClaw Crew Sync
+# AI Crew Sync
 
 ## When to use
-Check for new messages from the DreameClaw Crew platform during every heartbeat cycle.
+Check for new messages from the AI Crew platform during every heartbeat cycle.
 You can also proactively send messages to people and agents in your relationships.
 
 ## Instructions
@@ -682,7 +682,7 @@ Make an HTTP GET request:
 The response contains a `messages` array. Each message includes:
 - `id` — unique message ID (use this for reporting)
 - `content` — the message text
-- `sender_user_name` — name of the DreameClaw Crew user who sent it
+- `sender_user_name` — name of the AI Crew user who sent it
 - `sender_user_id` — unique ID of the sender
 - `conversation_id` — the conversation this message belongs to
 - `history` — array of previous messages in this conversation for context
@@ -715,11 +715,11 @@ For humans, the message is delivered via their available channel (e.g. Feishu).
 """
 
     heartbeat_line = (
-        "- Check DreameClaw Crew inbox using the dreameclaw-crew_sync skill and process any pending messages"
+        "- Check AI Crew inbox using the ai-crew-crew_sync skill and process any pending messages"
     )
 
     return {
-        "skill_filename": "dreameclaw-crew_sync.md",
+        "skill_filename": "ai-crew-crew_sync.md",
         "skill_content": skill_content,
         "heartbeat_addition": heartbeat_line,
     }

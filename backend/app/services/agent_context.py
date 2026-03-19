@@ -12,7 +12,7 @@ from app.config import get_settings
 settings = get_settings()
 
 # Two workspace roots exist — tool workspace and persistent data
-TOOL_WORKSPACE = Path("/tmp/dreameclaw-crew_workspaces")
+TOOL_WORKSPACE = Path("/tmp/ai-crew-crew_workspaces")
 PERSISTENT_DATA = Path(settings.AGENT_DATA_DIR)
 
 

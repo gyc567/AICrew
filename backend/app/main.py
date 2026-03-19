@@ -1,4 +1,4 @@
-"""DreameClaw Crew Backend — FastAPI Application Entry Point."""
+"""AI Crew Backend — FastAPI Application Entry Point."""
 
 from contextlib import asynccontextmanager
 

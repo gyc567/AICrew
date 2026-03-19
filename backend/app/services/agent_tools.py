@@ -258,7 +258,7 @@ AGENT_TOOLS = [
         "type": "function",
         "function": {
             "name": "send_web_message",
-            "description": "Send a message to a user on the DreameClaw Crew web platform. The message will appear in their web chat history and be pushed in real-time if they are online. Use this to proactively notify web users.",
+            "description": "Send a message to a user on the AI Crew web platform. The message will appear in their web chat history and be pushed in real-time if they are online. Use this to proactively notify web users.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -408,7 +408,7 @@ AGENT_TOOLS = [
                     },
                     "folder": {
                         "type": "string",
-                        "description": "Optional CDN folder path, e.g. /agents/reports. Defaults to /dreameclaw-crew.",
+                        "description": "Optional CDN folder path, e.g. /agents/reports. Defaults to /ai-crew-crew.",
                     },
                 },
             },
@@ -3320,7 +3320,7 @@ async def _handle_set_trigger(agent_id: uuid.UUID, arguments: dict) -> str:
             settings = get_settings()
             base = getattr(settings, "PUBLIC_URL", "") or ""
             if not base:
-                base = "https://try.dreameclaw-crew.ai"  # fallback
+                base = "https://try.ai-crew-crew.ai"  # fallback
             webhook_url = f"{base.rstrip('/')}/api/webhooks/t/{config['token']}"
             return f"✅ Webhook trigger '{name}' created.\n\nWebhook URL: {webhook_url}\n\nTell the user to configure this URL in their external service (e.g. GitHub, Grafana). When the service sends a POST to this URL, you will be woken up with the payload as context."
 
@@ -3475,7 +3475,7 @@ async def _upload_image(agent_id: uuid.UUID, ws: Path, arguments: dict) -> str:
     file_path = arguments.get("file_path")
     url = arguments.get("url")
     file_name = arguments.get("file_name")
-    folder = arguments.get("folder", "/dreameclaw-crew")
+    folder = arguments.get("folder", "/ai-crew-crew")
 
     if not file_path and not url:
         return "❌ Please provide either 'file_path' (workspace path) or 'url' (public image URL)"

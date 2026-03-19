@@ -11,11 +11,11 @@ set -e
 # --- Added: Permission fixing and privilege dropping ---
 if [ "$(id -u)" = '0' ]; then
     echo "[entrypoint] Detected root user, fixing permissions..."
-    # Ensure directories exist and are owned by dreameclaw-crew
-    chown -R dreameclaw-crew:dreameclaw-crew ${AGENT_DATA_DIR}
+    # Ensure directories exist and are owned by ai-crew-crew
+    chown -R ai-crew-crew:ai-crew-crew ${AGENT_DATA_DIR}
     
-    echo "[entrypoint] Dropping privileges to 'dreameclaw-crew' and re-executing..."
-    exec gosu dreameclaw-crew /bin/bash "$0" "$@"
+    echo "[entrypoint] Dropping privileges to 'ai-crew-crew' and re-executing..."
+    exec gosu ai-crew-crew /bin/bash "$0" "$@"
 fi
 # -------------------------------------------------------
 

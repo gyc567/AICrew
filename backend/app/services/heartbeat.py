@@ -148,7 +148,7 @@ async def _execute_heartbeat(agent_id: uuid.UUID):
 
             heartbeat_instruction = DEFAULT_HEARTBEAT_INSTRUCTION
             for ws_root in [
-                Path("/tmp/dreameclaw-crew_workspaces") / str(agent_id),
+                Path("/tmp/ai-crew-crew_workspaces") / str(agent_id),
                 Path(settings.AGENT_DATA_DIR) / str(agent_id),
             ]:
                 hb_file = ws_root / "HEARTBEAT.md"

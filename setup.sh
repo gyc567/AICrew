@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ────────────────────────────────────────────────
-# DreameClaw Crew — First-time Setup Script
+# AI Crew — First-time Setup Script
 # Sets up backend, frontend, database, and seed data.
 # ────────────────────────────────────────────────
 set -e
@@ -33,13 +33,13 @@ if command -v "$PYTHON_BIN" &>/dev/null; then
     PY_MAJOR=$(echo "$PY_VER" | cut -d. -f1)
     PY_MINOR=$(echo "$PY_VER" | cut -d. -f2)
     if [ "$PY_MAJOR" -lt 3 ] || ([ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -lt 12 ]); then
-        echo -e "${RED}Python $PY_VER detected, but DreameClaw Crew requires Python >= 3.12.${NC}"
+        echo -e "${RED}Python $PY_VER detected, but AI Crew requires Python >= 3.12.${NC}"
         echo ""
         echo "  Please install Python 3.12+:"
         echo "    Ubuntu:     sudo apt install python3.12 python3.12-venv"
         echo "    CentOS:     sudo dnf install python3.12"
         echo "    macOS:      brew install python@3.12"
-        echo "    Conda:      conda create -n dreameclaw-crew python=3.12"
+        echo "    Conda:      conda create -n ai-crew-crew python=3.12"
         echo ""
         echo "  Or set PYTHON_BIN to point to a valid python3.12+ binary:"
         echo "    PYTHON_BIN=/path/to/python3.12 bash setup.sh"
@@ -59,7 +59,7 @@ NPM_MIRROR="--registry https://registry.npmmirror.com"
 
 echo ""
 echo -e "${CYAN}═══════════════════════════════════════${NC}"
-echo -e "${CYAN}  🦞 Clawith — First-time Setup${NC}"
+echo -e "${CYAN}  🦞 AI Crew — First-time Setup${NC}"
 echo -e "${CYAN}═══════════════════════════════════════${NC}"
 echo ""
 
@@ -131,23 +131,23 @@ if PG_BIN_DIR=$(find_psql 2>/dev/null); then
 
         # Try to create role and database
         ROLE_EXISTS=false
-        if psql -h localhost -p $PG_PORT -U "$USER" -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='dreameclaw-crew'" 2>/dev/null | grep -q 1; then
+        if psql -h localhost -p $PG_PORT -U "$USER" -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='ai-crew-crew'" 2>/dev/null | grep -q 1; then
             ROLE_EXISTS=true
-            echo -e "  ${GREEN}✓${NC} Role 'dreameclaw-crew' already exists"
-        elif sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='dreameclaw-crew'" 2>/dev/null | grep -q 1; then
+            echo -e "  ${GREEN}✓${NC} Role 'ai-crew-crew' already exists"
+        elif sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='ai-crew-crew'" 2>/dev/null | grep -q 1; then
             ROLE_EXISTS=true
-            echo -e "  ${GREEN}✓${NC} Role 'dreameclaw-crew' already exists"
+            echo -e "  ${GREEN}✓${NC} Role 'ai-crew-crew' already exists"
         fi
 
         if [ "$ROLE_EXISTS" = false ]; then
             # Try 1: as current user
-            if createuser -h localhost -p $PG_PORT dreameclaw-crew 2>/dev/null; then
-                psql -h localhost -p $PG_PORT -U "$USER" -d postgres -c "ALTER ROLE dreameclaw-crew WITH LOGIN PASSWORD 'dreameclaw-crew';" &>/dev/null
-                echo -e "  ${GREEN}✓${NC} Created PostgreSQL role: dreameclaw-crew"
+            if createuser -h localhost -p $PG_PORT ai-crew-crew 2>/dev/null; then
+                psql -h localhost -p $PG_PORT -U "$USER" -d postgres -c "ALTER ROLE ai-crew-crew WITH LOGIN PASSWORD 'ai-crew-crew';" &>/dev/null
+                echo -e "  ${GREEN}✓${NC} Created PostgreSQL role: ai-crew-crew"
             # Try 2: via sudo -u postgres (standard Linux setup)
-            elif sudo -u postgres createuser dreameclaw-crew 2>/dev/null && \
-                 sudo -u postgres psql -c "ALTER ROLE dreameclaw-crew WITH LOGIN PASSWORD 'dreameclaw-crew';" &>/dev/null; then
-                echo -e "  ${GREEN}✓${NC} Created PostgreSQL role: dreameclaw-crew (via sudo)"
+            elif sudo -u postgres createuser ai-crew-crew 2>/dev/null && \
+                 sudo -u postgres psql -c "ALTER ROLE ai-crew-crew WITH LOGIN PASSWORD 'ai-crew-crew';" &>/dev/null; then
+                echo -e "  ${GREEN}✓${NC} Created PostgreSQL role: ai-crew-crew (via sudo)"
             else
                 echo -e "  ${YELLOW}⚠${NC}  Could not create role in existing PG — will init a local instance"
                 PG_BIN_DIR=""  # Force local PG setup below
@@ -156,18 +156,18 @@ if PG_BIN_DIR=$(find_psql 2>/dev/null); then
 
         if [ -n "$PG_BIN_DIR" ] || command -v psql &>/dev/null; then
             DB_EXISTS=false
-            if psql -h localhost -p $PG_PORT -U "$USER" -lqt 2>/dev/null | cut -d\| -f1 | grep -qw dreameclaw-crew; then
+            if psql -h localhost -p $PG_PORT -U "$USER" -lqt 2>/dev/null | cut -d\| -f1 | grep -qw ai-crew-crew; then
                 DB_EXISTS=true
-            elif sudo -u postgres psql -lqt 2>/dev/null | cut -d\| -f1 | grep -qw dreameclaw-crew; then
+            elif sudo -u postgres psql -lqt 2>/dev/null | cut -d\| -f1 | grep -qw ai-crew-crew; then
                 DB_EXISTS=true
             fi
 
             if [ "$DB_EXISTS" = true ]; then
-                echo -e "  ${GREEN}✓${NC} Database 'dreameclaw-crew' already exists"
+                echo -e "  ${GREEN}✓${NC} Database 'ai-crew-crew' already exists"
             else
-                if createdb -h localhost -p $PG_PORT -O dreameclaw-crew dreameclaw-crew 2>/dev/null || \
-                   sudo -u postgres createdb -O dreameclaw-crew dreameclaw-crew 2>/dev/null; then
-                    echo -e "  ${GREEN}✓${NC} Created database: dreameclaw-crew"
+                if createdb -h localhost -p $PG_PORT -O ai-crew-crew ai-crew-crew 2>/dev/null || \
+                   sudo -u postgres createdb -O ai-crew-crew ai-crew-crew 2>/dev/null; then
+                    echo -e "  ${GREEN}✓${NC} Created database: ai-crew-crew"
                 fi
             fi
         fi
@@ -179,7 +179,7 @@ if PG_BIN_DIR=$(find_psql 2>/dev/null); then
 fi
 
 # --- Local PG instance: install + initdb if needed ---
-if [ -z "$PG_BIN_DIR" ] && ! (PGPASSWORD=dreameclaw-crew psql -h localhost -p 5432 -U dreameclaw-crew -d dreameclaw-crew -c "SELECT 1" &>/dev/null); then
+if [ -z "$PG_BIN_DIR" ] && ! (PGPASSWORD=ai-crew-crew psql -h localhost -p 5432 -U ai-crew-crew -d ai-crew-crew -c "SELECT 1" &>/dev/null); then
     echo -e "  ${CYAN}↓${NC} No usable PostgreSQL found — setting up a local instance..."
     PG_MANAGED_BY_US=true
     PGDATA="$ROOT/.pgdata"
@@ -246,15 +246,15 @@ if [ -z "$PG_BIN_DIR" ] && ! (PGPASSWORD=dreameclaw-crew psql -h localhost -p 54
             done
             # Create role and database
             if command -v psql &>/dev/null; then
-                if ! psql -h localhost -p $PG_PORT -U postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='dreameclaw-crew'" 2>/dev/null | grep -q 1; then
-                    sudo -u postgres createuser dreameclaw-crew 2>/dev/null || createuser -h localhost -p $PG_PORT dreameclaw-crew 2>/dev/null || true
-                    sudo -u postgres psql -c "ALTER ROLE dreameclaw-crew WITH LOGIN PASSWORD 'dreameclaw-crew';" 2>/dev/null || \
-                        psql -h localhost -p $PG_PORT -U postgres -c "ALTER ROLE dreameclaw-crew WITH LOGIN PASSWORD 'dreameclaw-crew';" 2>/dev/null || true
-                    echo -e "  ${GREEN}✓${NC} Created role: dreameclaw-crew"
+                if ! psql -h localhost -p $PG_PORT -U postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='ai-crew-crew'" 2>/dev/null | grep -q 1; then
+                    sudo -u postgres createuser ai-crew-crew 2>/dev/null || createuser -h localhost -p $PG_PORT ai-crew-crew 2>/dev/null || true
+                    sudo -u postgres psql -c "ALTER ROLE ai-crew-crew WITH LOGIN PASSWORD 'ai-crew-crew';" 2>/dev/null || \
+                        psql -h localhost -p $PG_PORT -U postgres -c "ALTER ROLE ai-crew-crew WITH LOGIN PASSWORD 'ai-crew-crew';" 2>/dev/null || true
+                    echo -e "  ${GREEN}✓${NC} Created role: ai-crew-crew"
                 fi
-                if ! psql -h localhost -p $PG_PORT -U postgres -lqt 2>/dev/null | cut -d\| -f1 | grep -qw dreameclaw-crew; then
-                    sudo -u postgres createdb -O dreameclaw-crew dreameclaw-crew 2>/dev/null || createdb -h localhost -p $PG_PORT -O dreameclaw-crew dreameclaw-crew 2>/dev/null || true
-                    echo -e "  ${GREEN}✓${NC} Created database: dreameclaw-crew"
+                if ! psql -h localhost -p $PG_PORT -U postgres -lqt 2>/dev/null | cut -d\| -f1 | grep -qw ai-crew-crew; then
+                    sudo -u postgres createdb -O ai-crew-crew ai-crew-crew 2>/dev/null || createdb -h localhost -p $PG_PORT -O ai-crew-crew ai-crew-crew 2>/dev/null || true
+                    echo -e "  ${GREEN}✓${NC} Created database: ai-crew-crew"
                 fi
                 PG_MANAGED_BY_US=false  # System manages PG now
             fi
@@ -320,14 +320,14 @@ if [ -z "$PG_BIN_DIR" ] && ! (PGPASSWORD=dreameclaw-crew psql -h localhost -p 54
             fi
 
             # Create role and database
-            if ! psql -h localhost -p "$PG_PORT" -U postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='dreameclaw-crew'" 2>/dev/null | grep -q 1; then
-                createuser -h localhost -p "$PG_PORT" -U postgres dreameclaw-crew 2>/dev/null || true
-                psql -h localhost -p "$PG_PORT" -U postgres -c "ALTER ROLE dreameclaw-crew WITH LOGIN PASSWORD 'dreameclaw-crew';" &>/dev/null
-                echo -e "  ${GREEN}✓${NC} Created role: dreameclaw-crew"
+            if ! psql -h localhost -p "$PG_PORT" -U postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='ai-crew-crew'" 2>/dev/null | grep -q 1; then
+                createuser -h localhost -p "$PG_PORT" -U postgres ai-crew-crew 2>/dev/null || true
+                psql -h localhost -p "$PG_PORT" -U postgres -c "ALTER ROLE ai-crew-crew WITH LOGIN PASSWORD 'ai-crew-crew';" &>/dev/null
+                echo -e "  ${GREEN}✓${NC} Created role: ai-crew-crew"
             fi
-            if ! psql -h localhost -p "$PG_PORT" -U postgres -lqt 2>/dev/null | cut -d\| -f1 | grep -qw dreameclaw-crew; then
-                createdb -h localhost -p "$PG_PORT" -U postgres -O dreameclaw-crew dreameclaw-crew 2>/dev/null
-                echo -e "  ${GREEN}✓${NC} Created database: dreameclaw-crew"
+            if ! psql -h localhost -p "$PG_PORT" -U postgres -lqt 2>/dev/null | cut -d\| -f1 | grep -qw ai-crew-crew; then
+                createdb -h localhost -p "$PG_PORT" -U postgres -O ai-crew-crew ai-crew-crew 2>/dev/null
+                echo -e "  ${GREEN}✓${NC} Created database: ai-crew-crew"
             fi
         else
             echo -e "  ${RED}✗${NC} Could not set up PostgreSQL automatically."
@@ -345,7 +345,7 @@ if [ -z "$PG_BIN_DIR" ] && ! (PGPASSWORD=dreameclaw-crew psql -h localhost -p 54
 fi
 
 # Ensure DATABASE_URL is correct in .env
-DB_URL="postgresql+asyncpg://dreameclaw-crew:dreameclaw-crew@localhost:${PG_PORT}/dreameclaw-crew?ssl=disable"
+DB_URL="postgresql+asyncpg://ai-crew-crew:ai-crew-crew@localhost:${PG_PORT}/ai-crew-crew?ssl=disable"
 if grep -q "^DATABASE_URL=" "$ROOT/.env" 2>/dev/null; then
     # Update existing DATABASE_URL
     sed -i "s|^DATABASE_URL=.*|DATABASE_URL=${DB_URL}|" "$ROOT/.env" 2>/dev/null || \
@@ -428,12 +428,12 @@ else
     echo "  Common fixes:"
     echo "    1. Make sure PostgreSQL is running"
     echo "    2. Set DATABASE_URL in .env, e.g.:"
-    echo "       DATABASE_URL=postgresql+asyncpg://dreameclaw-crew:dreameclaw-crew@localhost:5432/dreameclaw-crew?ssl=disable"
+    echo "       DATABASE_URL=postgresql+asyncpg://ai-crew-crew:ai-crew-crew@localhost:5432/ai-crew-crew?ssl=disable"
     echo "    3. Create the database first:"
-    echo "       createdb dreameclaw-crew"
+    echo "       createdb ai-crew-crew"
     echo "    4. If you see 'Ident authentication failed', configure pg_hba.conf:"
     echo "       Add this line BEFORE other host rules:"
-    echo "       host  all  dreameclaw-crew  127.0.0.1/32  md5"
+    echo "       host  all  ai-crew-crew  127.0.0.1/32  md5"
     echo "       Then reload: sudo systemctl reload postgresql"
     echo ""
     echo "  After fixing, re-run: bash setup.sh"

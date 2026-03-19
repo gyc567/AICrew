@@ -175,7 +175,7 @@ class AgentManager:
             container = self.docker_client.containers.run(
                 settings.OPENCLAW_IMAGE,
                 detach=True,
-                name=f"dreameclaw-crew-agent-{str(agent.id)[:8]}",
+                name=f"ai-crew-crew-agent-{str(agent.id)[:8]}",
                 network=settings.DOCKER_NETWORK,
                 ports={f"{settings.OPENCLAW_GATEWAY_PORT}/tcp": container_port},
                 volumes={
@@ -186,8 +186,8 @@ class AgentManager:
                 },
                 restart_policy={"Name": "unless-stopped"},
                 labels={
-                    "dreameclaw-crew.agent_id": str(agent.id),
-                    "dreameclaw-crew.agent_name": agent.name,
+                    "ai-crew-crew.agent_id": str(agent.id),
+                    "ai-crew-crew.agent_name": agent.name,
                 },
             )
 

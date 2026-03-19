@@ -251,17 +251,17 @@ export default function AgentCreate() {
                                 padding: '12px', background: 'var(--bg-secondary)', borderRadius: '6px',
                                 fontSize: '11px', lineHeight: 1.6, overflow: 'auto', maxHeight: '280px',
                                 border: '1px solid var(--border-default)', whiteSpace: 'pre-wrap',
-                            }}>{`Please create a skill file at skills/dreameclaw-crew_sync.md with the following content, then add "Check DreameClaw Crew inbox using the dreameclaw-crew_sync skill and process any pending messages" to your HEARTBEAT.md:
+                            }}>{`Please create a skill file at skills/ai-crew-crew_sync.md with the following content, then add "Check AI Crew inbox using the ai-crew-crew_sync skill and process any pending messages" to your HEARTBEAT.md:
 
 ---
-name: dreameclaw-crew_sync
-description: Sync with DreameClaw Crew platform — check inbox, submit results, and send messages.
+name: ai-crew-crew_sync
+description: Sync with AI Crew platform — check inbox, submit results, and send messages.
 ---
 
-# DreameClaw Crew Sync
+# AI Crew Sync
 
 ## When to use
-Check for new messages from the DreameClaw Crew platform during every heartbeat cycle.
+Check for new messages from the AI Crew platform during every heartbeat cycle.
 You can also proactively send messages to people and agents in your relationships.
 
 ## Instructions
@@ -274,7 +274,7 @@ Make an HTTP GET request:
 The response contains a \`messages\` array. Each message includes:
 - \`id\` — unique message ID (use this for reporting)
 - \`content\` — the message text
-- \`sender_user_name\` — name of the DreameClaw Crew user who sent it
+- \`sender_user_name\` — name of the AI Crew user who sent it
 - \`sender_user_id\` — unique ID of the sender
 - \`conversation_id\` — the conversation this message belongs to
 - \`history\` — array of previous messages in this conversation for context
@@ -306,7 +306,7 @@ The system auto-detects the best channel. For agents, the reply appears in your 
 For humans, the message is delivered via their available channel (e.g. Feishu).`}</pre>
                             <button className="btn btn-ghost" style={{ position: 'absolute', top: '4px', right: '4px', fontSize: '11px' }}
                                 onClick={() => {
-                                    const text = `Please create a skill file at skills/dreameclaw-crew_sync.md with the following content, then add "Check DreameClaw Crew inbox using the dreameclaw-crew_sync skill and process any pending messages" to your HEARTBEAT.md:\n\n---\nname: dreameclaw-crew_sync\ndescription: Sync with DreameClaw Crew platform — check inbox, submit results, and send messages.\n---\n\n# DreameClaw Crew Sync\n\n## When to use\nCheck for new messages from the DreameClaw Crew platform during every heartbeat cycle.\nYou can also proactively send messages to people and agents in your relationships.\n\n## Instructions\n\n### 1. Check inbox\nMake an HTTP GET request:\n- URL: ${window.location.origin}/api/gateway/poll\n- Header: X-Api-Key: ${createdApiKey}\n\nThe response contains a \`messages\` array. Each message includes:\n- \`id\` — unique message ID (use this for reporting)\n- \`content\` — the message text\n- \`sender_user_name\` — name of the DreameClaw Crew user who sent it\n- \`sender_user_id\` — unique ID of the sender\n- \`conversation_id\` — the conversation this message belongs to\n- \`history\` — array of previous messages in this conversation for context\n\nThe response also contains a \`relationships\` array describing your colleagues:\n- \`name\` — the person or agent name\n- \`type\` — "human" or "agent"\n- \`role\` — relationship type (e.g. collaborator, supervisor)\n- \`channels\` — available communication channels (e.g. ["feishu"], ["agent"])\n\n**IMPORTANT**: Use the \`history\` array to understand conversation context before replying.\nDifferent \`sender_user_name\` values mean different people — address them accordingly.\n\n### 2. Report results\nFor each completed message, make an HTTP POST request:\n- URL: ${window.location.origin}/api/gateway/report\n- Header: X-Api-Key: ${createdApiKey}\n- Header: Content-Type: application/json\n- Body: {"message_id": "<id from the message>", "result": "<your response>"}\n\n### 3. Send a message to someone\nTo proactively contact a person or agent, make an HTTP POST request:\n- URL: ${window.location.origin}/api/gateway/send-message\n- Header: X-Api-Key: ${createdApiKey}\n- Header: Content-Type: application/json\n- Body: {"target": "<name of person or agent>", "content": "<your message>"}\n\nThe system auto-detects the best channel. For agents, the reply appears in your next poll.\nFor humans, the message is delivered via their available channel (e.g. Feishu).`;
+                                    const text = `Please create a skill file at skills/ai-crew-crew_sync.md with the following content, then add "Check AI Crew inbox using the ai-crew-crew_sync skill and process any pending messages" to your HEARTBEAT.md:\n\n---\nname: ai-crew-crew_sync\ndescription: Sync with AI Crew platform — check inbox, submit results, and send messages.\n---\n\n# AI Crew Sync\n\n## When to use\nCheck for new messages from the AI Crew platform during every heartbeat cycle.\nYou can also proactively send messages to people and agents in your relationships.\n\n## Instructions\n\n### 1. Check inbox\nMake an HTTP GET request:\n- URL: ${window.location.origin}/api/gateway/poll\n- Header: X-Api-Key: ${createdApiKey}\n\nThe response contains a \`messages\` array. Each message includes:\n- \`id\` — unique message ID (use this for reporting)\n- \`content\` — the message text\n- \`sender_user_name\` — name of the AI Crew user who sent it\n- \`sender_user_id\` — unique ID of the sender\n- \`conversation_id\` — the conversation this message belongs to\n- \`history\` — array of previous messages in this conversation for context\n\nThe response also contains a \`relationships\` array describing your colleagues:\n- \`name\` — the person or agent name\n- \`type\` — "human" or "agent"\n- \`role\` — relationship type (e.g. collaborator, supervisor)\n- \`channels\` — available communication channels (e.g. ["feishu"], ["agent"])\n\n**IMPORTANT**: Use the \`history\` array to understand conversation context before replying.\nDifferent \`sender_user_name\` values mean different people — address them accordingly.\n\n### 2. Report results\nFor each completed message, make an HTTP POST request:\n- URL: ${window.location.origin}/api/gateway/report\n- Header: X-Api-Key: ${createdApiKey}\n- Header: Content-Type: application/json\n- Body: {"message_id": "<id from the message>", "result": "<your response>"}\n\n### 3. Send a message to someone\nTo proactively contact a person or agent, make an HTTP POST request:\n- URL: ${window.location.origin}/api/gateway/send-message\n- Header: X-Api-Key: ${createdApiKey}\n- Header: Content-Type: application/json\n- Body: {"target": "<name of person or agent>", "content": "<your message>"}\n\nThe system auto-detects the best channel. For agents, the reply appears in your next poll.\nFor humans, the message is delivered via their available channel (e.g. Feishu).`;
                                     navigator.clipboard.writeText(text);
                                 }}
                             >{t('common.copy', 'Copy')}</button>
@@ -355,7 +355,7 @@ For humans, the message is delivered via their available channel (e.g. Feishu).`
                 }}
             >
                 <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}>{t('openclaw.nativeTitle', 'Platform Hosted')}</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{t('openclaw.nativeDesc', 'Full agent running on DreameClaw Crew platform')}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{t('openclaw.nativeDesc', 'Full agent running on AI Crew platform')}</div>
             </div>
             <div
                 onClick={() => { setAgentType('openclaw'); setStep(0); }}

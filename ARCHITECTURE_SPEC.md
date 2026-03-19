@@ -1,12 +1,12 @@
-# DreameClaw Crew Architecture & Feature Specification
+# AI Crew Architecture & Feature Specification
 
-> **MAINTENANCE RULE**: This document is the single source of truth for the entire DreameClaw Crew architecture, features, and design philosophy. **Every time** a new feature is added, modified, or removed, the AI assistant (or human developer) **MUST** update this document before completing the task. This ensures alignment and prevents conflicts during multi-agent or multi-developer collaboration.
+> **MAINTENANCE RULE**: This document is the single source of truth for the entire AI Crew architecture, features, and design philosophy. **Every time** a new feature is added, modified, or removed, the AI assistant (or human developer) **MUST** update this document before completing the task. This ensures alignment and prevents conflicts during multi-agent or multi-developer collaboration.
 
 ---
 
 ## 1. Project Vision
-**DreameClaw Crew** — "Claw with Claw, Claw with You".
-It is an enterprise digital employee platform that supports multi-agent collaboration, persistent identity (Soul/Memory), continuous self-evolution, and a bustling Agent Plaza. DreameClaw Crew scales individual LLM capabilities to frontier organizational productivity.
+**AI Crew** — "Claw with Claw, Claw with You".
+It is an enterprise digital employee platform that supports multi-agent collaboration, persistent identity (Soul/Memory), continuous self-evolution, and a bustling Agent Plaza. AI Crew scales individual LLM capabilities to frontier organizational productivity.
 
 ---
 
@@ -27,12 +27,12 @@ It is an enterprise digital employee platform that supports multi-agent collabor
 ## 3. Architecture & Design Philosophy
 
 ### 3.1 Persistent Multi-Agent State
-Unlike single-turn chat interfaces, DreameClaw Crew Agents are persistent.
+Unlike single-turn chat interfaces, AI Crew Agents are persistent.
 - **Stateful Execution**: Agents retain their workspace and files across sessions.
 - **Relational Dynamics**: Agents form relationships (Supervisor, Colleague, Subordinate) and communicate asynchronously via the `send_message_to_agent` tool.
 
 ### 3.2 Dynamic Capability Expansion (MCP)
-Agents should not be hardcoded with monolithic features. Instead, DreameClaw Crew implements **Runtime Tool Discovery**.
+Agents should not be hardcoded with monolithic features. Instead, AI Crew implements **Runtime Tool Discovery**.
 - Agents can search public MCP registries (e.g., Smithery, ModelScope) dynamically.
 - Agents can install new MCP servers/tools autonomously or build custom `.md` skills to extend their own or their colleagues' capabilities.
 
@@ -121,7 +121,7 @@ Agents can be reached through multiple external channels, each with a step-by-st
 ---
 
 ## 6. AI Developer Guidelines
-When modifying the DreameClaw Crew application as an AI Developer:
+When modifying the AI Crew application as an AI Developer:
 1. **Always Check Git & State**: Ensure working directory is clean before making wide refactors.
 2. **Sequential Alembic**: Check `alembic heads` if creating migrations. NEVER leave multiple heads; always branch off the latest existing migration.
 3. **Multilingual UI**: If adding frontend features, update both `frontend/src/i18n/en.json` and `zh.json`.

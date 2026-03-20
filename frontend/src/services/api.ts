@@ -288,6 +288,18 @@ export const channelApi = {
 
 // ─── Enterprise ───────────────────────────────────────
 export const enterpriseApi = {
+    testLLM: (data: {
+        provider: string;
+        model: string;
+        api_key?: string;
+        base_url?: string;
+        model_id?: string;
+    }) =>
+        request<{ success: boolean; latency_ms: number; reply?: string; error?: string }>(
+            '/enterprise/llm-test',
+            { method: 'POST', body: JSON.stringify(data) }
+        ),
+
     llmModels: () => {
         const tid = localStorage.getItem('current_tenant_id');
         return request<any[]>(`/enterprise/llm-models${tid ? `?tenant_id=${tid}` : ''}`);

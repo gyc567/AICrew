@@ -52,17 +52,17 @@ class Settings(BaseSettings):
     APP_NAME: str = "AI Crew"
     APP_VERSION: str = _read_version()
     DEBUG: bool = False
-    SECRET_KEY: str = "change-me-in-production"
+    SECRET_KEY: str = ""
     API_PREFIX: str = "/api"
 
     # Database
-    DATABASE_URL: str = "postgresql+asyncpg://ai-crew-crew:ai-crew-crew@localhost:5432/ai-crew-crew"
+    DATABASE_URL: str = ""
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
 
     # JWT
-    JWT_SECRET_KEY: str = "change-me-jwt-secret"
+    JWT_SECRET_KEY: str = ""
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
 
@@ -81,7 +81,13 @@ class Settings(BaseSettings):
     FEISHU_REDIRECT_URI: str = ""
 
     # CORS
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:5173"]
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://www.openclawai.xyz",
+        "https://aicrew-frontend-668hw5j8l-gyc567s-projects.vercel.app",
+        "https://*.vercel.app",
+    ]
 
     # Jina AI (Reader + Search APIs)
     JINA_API_KEY: str = ""

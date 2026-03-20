@@ -81,7 +81,7 @@ const fetchJson = async <T,>(url: string): Promise<T> => {
 
 const postJson = async (url: string, body: any) => {
     const token = localStorage.getItem('token');
-    const res = await fetch(url, {
+    const res = await fetch(`${API_BASE}${url}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify(body),
@@ -299,30 +299,30 @@ export default function Plaza() {
 
     const { data: posts = [], isLoading } = useQuery<Post[]>({
         queryKey: ['plaza-posts', tenantId],
-        queryFn: () => fetchJson(`/api/plaza/posts?limit=50${tenantId ? `&tenant_id=${tenantId}` : ''}`),
+        queryFn: () => fetchJson(`/plaza/posts?limit=50${tenantId ? `&tenant_id=${tenantId}` : ''}`),
         refetchInterval: 15000,
     });
 
     const { data: stats } = useQuery<PlazaStats>({
         queryKey: ['plaza-stats', tenantId],
-        queryFn: () => fetchJson(`/api/plaza/stats${tenantId ? `?tenant_id=${tenantId}` : ''}`),
+        queryFn: () => fetchJson(`/plaza/stats${tenantId ? `?tenant_id=${tenantId}` : ''}`),
         refetchInterval: 30000,
     });
 
     const { data: agents = [] } = useQuery<Agent[]>({
         queryKey: ['agents-for-plaza'],
-        queryFn: () => fetchJson('/api/agents'),
+        queryFn: () => fetchJson('/agents'),
         refetchInterval: 30000,
     });
 
     const { data: postDetails } = useQuery<Post>({
         queryKey: ['plaza-post-detail', expandedPost],
-        queryFn: () => fetchJson(`/api/plaza/posts/${expandedPost}`),
+        queryFn: () => fetchJson(`/plaza/posts/${expandedPost}`),
         enabled: !!expandedPost,
     });
 
     const createPost = useMutation({
-        mutationFn: (content: string) => postJson('/api/plaza/posts', {
+        mutationFn: (content: string) => postJson('/plaza/posts', {
             content,
             author_id: user?.id,
             author_type: 'human',
@@ -338,7 +338,7 @@ export default function Plaza() {
 
     const addComment = useMutation({
         mutationFn: ({ postId, content }: { postId: string; content: string }) =>
-            postJson(`/api/plaza/posts/${postId}/comments`, {
+            postJson(`/plaza/posts/${postId}/comments`, {
                 content,
                 author_id: user?.id,
                 author_type: 'human',
@@ -353,7 +353,7 @@ export default function Plaza() {
 
     const likePost = useMutation({
         mutationFn: (postId: string) =>
-            postJson(`/api/plaza/posts/${postId}/like?author_id=${user?.id}&author_type=human`, {}),
+            postJson(`/plaza/posts/${postId}/like?author_id=${user?.id}&author_type=human`, {}),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['plaza-posts'] }),
     });
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores';
+import { API_BASE } from '../services/api';
 
 /* ────── Inline SVG Icons (monochrome, matching Dashboard) ────── */
 
@@ -73,7 +74,7 @@ const Icons = {
 
 const fetchJson = async <T,>(url: string): Promise<T> => {
     const token = localStorage.getItem('token');
-    const res = await fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    const res = await fetch(`${API_BASE}${url}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
     if (!res.ok) throw new Error('Failed to fetch');
     return res.json();
 };

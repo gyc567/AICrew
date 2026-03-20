@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores';
-import { agentApi } from '../services/api';
+import { agentApi, API_BASE } from '../services/api';
 
 /* ────── SVG Icons ────── */
 const SidebarIcons = {
@@ -71,7 +71,7 @@ const SidebarIcons = {
 
 const fetchJson = async <T,>(url: string): Promise<T> => {
     const token = localStorage.getItem('token');
-    const res = await fetch(`/api${url}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    const res = await fetch(`${API_BASE}${url}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
     if (!res.ok) return [] as T;
     return res.json();
 };
@@ -113,7 +113,7 @@ function AccountSettingsModal({ user, onClose, isChinese }: { user: any; onClose
             if (username !== user?.username) body.username = username;
             if (displayName !== user?.display_name) body.display_name = displayName;
             if (Object.keys(body).length === 0) { showMsg(isChinese ? '没有变更' : 'No changes', 'error'); setSaving(false); return; }
-            const res = await fetch('/api/auth/me', {
+            const res = await fetch(`${API_BASE}/auth/me`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify(body),
@@ -133,7 +133,7 @@ function AccountSettingsModal({ user, onClose, isChinese }: { user: any; onClose
         setSaving(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/auth/me/password', {
+            const res = await fetch(`${API_BASE}/auth/me/password`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
@@ -203,13 +203,13 @@ export default function Layout() {
     });
     const markAllRead = async () => {
         const token = localStorage.getItem('token');
-        await fetch('/api/notifications/read-all', { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        await fetch(`${API_BASE}/notifications/read-all`, { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {} });
         queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
     };
     const markOneRead = async (id: string) => {
         const token = localStorage.getItem('token');
-        await fetch(`/api/notifications/${id}/read`, { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        await fetch(`${API_BASE}/notifications/${id}/read`, { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {} });
         queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
     };

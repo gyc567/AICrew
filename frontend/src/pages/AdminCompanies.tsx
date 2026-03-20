@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { adminApi } from '../services/api';
+import { adminApi, systemSettingsApi, API_BASE } from '../services/api';
 import { useAuthStore } from '../stores';
 import { saveAccentColor, getSavedAccentColor } from '../utils/theme';
 
@@ -84,11 +84,7 @@ export default function AdminCompanies() {
 
     const loadNotificationBar = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch('/api/enterprise/system-settings/notification_bar', {
-                headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-            });
-            const d = await res.json();
+            const d = await systemSettingsApi.get('notification_bar');
             if (d?.value) {
                 setNbEnabled(!!d.value.enabled);
                 setNbText(d.value.text || '');
@@ -99,12 +95,7 @@ export default function AdminCompanies() {
     const saveNotificationBar = async () => {
         setNbSaving(true);
         try {
-            const token = localStorage.getItem('token');
-            await fetch('/api/enterprise/system-settings/notification_bar', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-                body: JSON.stringify({ value: { enabled: nbEnabled, text: nbText } }),
-            });
+            await systemSettingsApi.update('notification_bar', { enabled: nbEnabled, text: nbText });
             setNbSaved(true);
             setTimeout(() => setNbSaved(false), 2000);
         } catch { }

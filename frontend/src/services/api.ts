@@ -4,7 +4,7 @@ import type { Agent, TokenResponse, User, Task, ChatMessage } from '../types';
 
 // Use environment variable for API base URL (Vercel deployment)
 // Falls back to relative path for local development
-const API_BASE = import.meta.env.VITE_API_URL 
+export const API_BASE = import.meta.env.VITE_API_URL 
     ? `${import.meta.env.VITE_API_URL}/api`
     : '/api';
 
@@ -26,7 +26,10 @@ async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
             window.location.href = '/login';
             throw new Error('Session expired');
         }
-        const error = await res.json().catch(() => ({ detail: 'Request failed' }));
+        const error = await res.json().catch(async () => {
+            const text = await res.text().catch(() => '');
+            return { detail: text || `HTTP ${res.status}` };
+        });
         // Pydantic validation errors return detail as an array of objects
         const fieldLabels: Record<string, string> = {
             name: '名称',
@@ -427,4 +430,133 @@ export const triggerApi = {
 
     delete: (agentId: string, triggerId: string) =>
         request<void>(`/agents/${agentId}/triggers/${triggerId}`, { method: 'DELETE' }),
+};
+
+// ─── System Settings ──────────────────────────────────
+export const systemSettingsApi = {
+    get: (key: string) => request<any>(`/enterprise/system-settings/${key}`),
+    update: (key: string, value: any) =>
+        request<any>(`/enterprise/system-settings/${key}`, { method: 'PUT', body: JSON.stringify({ value }) }),
+    getPublicNotificationBar: () =>
+        request<any>('/enterprise/system-settings/notification_bar/public'),
+};
+
+// ─── Tools ────────────────────────────────────────────
+export const toolApi = {
+    getAgentToolsWithConfig: (agentId: string) =>
+        request<any[]>(`/tools/agents/${agentId}/with-config`),
+
+    updateAgentTools: (agentId: string, tools: { tool_id: string; enabled: boolean }[]) =>
+        request<any>(`/tools/agents/${agentId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(tools),
+        }),
+
+    getToolAgent: (agentId: string) =>
+        request<any[]>(`/tools/agents/${agentId}`),
+
+    getToolAgentConfig: (agentId: string, configToolId: string) =>
+        request<any>(`/tools/agent-tool/${configToolId}`),
+
+    updateToolAgentConfig: (agentId: string, configToolId: string, config: any) =>
+        request<any>(`/tools/agents/${agentId}/tool-config/${configToolId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ config }),
+        }),
+
+    deleteTool: (toolId: string) =>
+        request<void>(`/tools/${toolId}`, { method: 'DELETE' }),
+
+    deleteAgentTool: (agentToolId: string) =>
+        request<void>(`/tools/agent-tool/${agentToolId}`, { method: 'DELETE' }),
+
+    testEmail: (config: any) =>
+        request<any>('/tools/test-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ config }),
+        }),
+};
+
+// ─── Agent Sessions ──────────────────────────────────
+export const sessionApi = {
+    list: (agentId: string, scope: 'mine' | 'all' = 'mine') =>
+        request<any[]>(`/agents/${agentId}/sessions?scope=${scope}`),
+
+    create: (agentId: string) =>
+        request<any>(`/agents/${agentId}/sessions`, { method: 'POST', body: JSON.stringify({}) }),
+
+    delete: (agentId: string, sessionId: string) =>
+        request<void>(`/agents/${agentId}/sessions/${sessionId}`, { method: 'DELETE' }),
+
+    messages: (agentId: string, sessionId: string) =>
+        request<any[]>(`/agents/${agentId}/sessions/${sessionId}/messages`),
+};
+
+// ─── Approvals ────────────────────────────────────────
+export const approvalApi = {
+    list: (agentId: string) =>
+        request<any[]>(`/agents/${agentId}/approvals`),
+
+    resolve: (agentId: string, approvalId: string, action: string) =>
+        request<void>(`/agents/${agentId}/approvals/${approvalId}/resolve`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action }),
+        }),
+};
+
+// ─── Notifications ────────────────────────────────────
+export const notificationApi = {
+    list: (limit = 30) =>
+        request<any[]>(`/notifications?limit=${limit}`),
+
+    markAllRead: () =>
+        request<void>('/notifications/read-all', { method: 'POST' }),
+
+    markRead: (id: string) =>
+        request<void>(`/notifications/${id}/read`, { method: 'POST' }),
+};
+
+// ─── Invitation Codes ─────────────────────────────────
+export const invitationCodeApi = {
+    list: (params: { page: number; page_size: number; search?: string }) => {
+        const q = new URLSearchParams({ page: String(params.page), page_size: String(params.page_size) });
+        if (params.search) q.set('search', params.search);
+        return request<{ items: any[]; total: number }>(`/enterprise/invitation-codes?${q}`);
+    },
+
+    create: (count: number, max_uses: number) =>
+        request<any>('/enterprise/invitation-codes', {
+            method: 'POST',
+            body: JSON.stringify({ count, max_uses }),
+        }),
+
+    delete: (id: string) =>
+        request<void>(`/enterprise/invitation-codes/${id}`, { method: 'DELETE' }),
+
+    exportUrl: () => `${API_BASE}/enterprise/invitation-codes/export`,
+};
+
+// ─── Chat ─────────────────────────────────────────────
+export const chatApi = {
+    history: (chatId: string) =>
+        request<any[]>(`/chat/${chatId}/history`),
+
+    upload: (file: File, agentId?: string) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        if (agentId) formData.append('agent_id', agentId);
+        const token = localStorage.getItem('token');
+        return fetch(`${API_BASE}/chat/upload`, {
+            method: 'POST',
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            body: formData,
+        }).then(r => {
+            if (!r.ok) return r.json().then(e => { throw new Error(e.detail || 'Upload failed'); });
+            return r.json();
+        });
+    },
 };

@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores';
 import { useEffect, useState } from 'react';
-import { authApi } from './services/api';
+import { authApi, API_BASE } from './services/api';
 import Login from './pages/Login';
 import CompanySetup from './pages/CompanySetup';
 import Layout from './pages/Layout';
@@ -30,7 +30,7 @@ function NotificationBar() {
     const [dismissed, setDismissed] = useState(false);
 
     useEffect(() => {
-        fetch('/api/enterprise/system-settings/notification_bar/public')
+        fetch(`${API_BASE}/enterprise/system-settings/notification_bar/public`)
             .then(r => r.ok ? r.json() : null)
             .then(d => { if (d) setConfig(d); })
             .catch(() => { });

@@ -3,6 +3,7 @@
  */
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { API_BASE } from '../services/api';
 
 interface UserInfo {
     id: string;
@@ -22,11 +23,9 @@ interface UserInfo {
     source?: string;
 }
 
-const API_PREFIX = '/api';
-
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     const token = localStorage.getItem('token');
-    const res = await fetch(`${API_PREFIX}${url}`, {
+    const res = await fetch(`${API_BASE}${url}`, {
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         ...options,
     });

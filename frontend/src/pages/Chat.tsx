@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import MarkdownRenderer from '../components/MarkdownRenderer';
-import { agentApi, enterpriseApi } from '../services/api';
+import { agentApi, enterpriseApi, API_BASE } from '../services/api';
 import { useAuthStore } from '../stores';
 
 /* ── Inline SVG Icons ── */
@@ -119,7 +119,7 @@ export default function Chat() {
     // Load chat history on mount
     useEffect(() => {
         if (!id || !token) return;
-        fetch(`/api/chat/${id}/history`, {
+        fetch(`${API_BASE}/chat/${id}/history`, {
             headers: { Authorization: `Bearer ${token}` },
         })
             .then(r => r.json())
@@ -249,7 +249,7 @@ export default function Chat() {
             formData.append('file', file);
             if (id) formData.append('agent_id', id);
 
-            const resp = await fetch('/api/chat/upload', {
+            const resp = await fetch(`${API_BASE}/chat/upload`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData,

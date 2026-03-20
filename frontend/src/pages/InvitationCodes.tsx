@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { invitationCodeApi } from '../services/api';
 
 export default function InvitationCodes() {
     const { t } = useTranslation();
@@ -13,20 +14,10 @@ export default function InvitationCodes() {
     const [creating, setCreating] = useState(false);
     const [toast, setToast] = useState('');
 
-    const token = localStorage.getItem('token');
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
     const loadCodes = useCallback(async (p?: number, q?: string) => {
         const currentPage = p ?? page;
         const currentSearch = q ?? search;
-        const params = new URLSearchParams({
-            page: String(currentPage),
-            page_size: String(pageSize),
-        });
-        if (currentSearch) params.set('search', currentSearch);
-        const res = await fetch(`/api/enterprise/invitation-codes?${params}`, { headers });
-        const data = await res.json();
+        const data = await invitationCodeApi.list({ page: currentPage, page_size: pageSize, search: currentSearch || undefined });
         setCodes(data.items || []);
         setTotal(data.total || 0);
     }, [page, search]);
@@ -42,9 +33,7 @@ export default function InvitationCodes() {
 
     const createBatch = async () => {
         setCreating(true);
-        await fetch('/api/enterprise/invitation-codes', {
-            method: 'POST', headers, body: JSON.stringify({ count: batchCount, max_uses: maxUses }),
-        });
+        await invitationCodeApi.create(batchCount, maxUses);
         setPage(1);
         setSearch('');
         await loadCodes(1, '');
@@ -54,15 +43,14 @@ export default function InvitationCodes() {
     };
 
     const deactivate = async (id: string) => {
-        await fetch(`/api/enterprise/invitation-codes/${id}`, { method: 'DELETE', headers });
+        await invitationCodeApi.delete(id);
         await loadCodes();
     };
 
     const exportCsv = () => {
-        const token = localStorage.getItem('token');
         const a = document.createElement('a');
-        fetch('/api/enterprise/invitation-codes/export', {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
+        fetch(invitationCodeApi.exportUrl(), {
+            headers: localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {},
         })
             .then(r => r.blob())
             .then(blob => {

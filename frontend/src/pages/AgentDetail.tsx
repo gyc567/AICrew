@@ -9,7 +9,7 @@ import FileBrowser from '../components/FileBrowser';
 import ChannelConfig from '../components/ChannelConfig';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import PromptModal from '../components/PromptModal';
-import { activityApi, agentApi, channelApi, enterpriseApi, fileApi, scheduleApi, skillApi, taskApi, triggerApi, uploadFileWithProgress } from '../services/api';
+import { activityApi, agentApi, channelApi, enterpriseApi, fileApi, scheduleApi, skillApi, taskApi, triggerApi, uploadFileWithProgress, toolApi, sessionApi, approvalApi, API_BASE } from '../services/api';
 import { useAuthStore } from '../stores';
 
 const TABS = ['status', 'aware', 'mind', 'tools', 'skills', 'relationships', 'workspace', 'chat', 'activityLog', 'approvals', 'settings'] as const;
@@ -50,16 +50,8 @@ function ToolsManager({ agentId, canManage = false }: { agentId: string; canMana
 
     const loadTools = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`/api/tools/agents/${agentId}/with-config`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.ok) setTools(await res.json());
-            else {
-                // Fallback to old endpoint
-                const res2 = await fetch(`/api/tools/agents/${agentId}`, { headers: { Authorization: `Bearer ${token}` } });
-                if (res2.ok) setTools(await res2.json());
-            }
+            const tools = await toolApi.getAgentToolsWithConfig(agentId);
+            setTools(tools);
         } catch (e) { console.error(e); }
         setLoading(false);
     };
@@ -69,12 +61,7 @@ function ToolsManager({ agentId, canManage = false }: { agentId: string; canMana
     const toggleTool = async (toolId: string, enabled: boolean) => {
         setTools(prev => prev.map(t => t.id === toolId ? { ...t, enabled } : t));
         try {
-            const token = localStorage.getItem('token');
-            await fetch(`/api/tools/agents/${agentId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify([{ tool_id: toolId, enabled }]),
-            });
+            await toolApi.updateAgentTools(agentId, [{ tool_id: toolId, enabled }]);
         } catch (e) { console.error(e); }
     };
 
@@ -89,14 +76,9 @@ function ToolsManager({ agentId, canManage = false }: { agentId: string; canMana
         if (!configTool) return;
         setConfigSaving(true);
         try {
-            const token = localStorage.getItem('token');
             const hasSchema = configTool.config_schema?.fields?.length > 0;
             const payload = hasSchema ? configData : JSON.parse(configJson || '{}');
-            await fetch(`/api/tools/agents/${agentId}/tool-config/${configTool.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ config: payload }),
-            });
+            await toolApi.updateToolAgentConfig(agentId, configTool.id, payload);
             setConfigTool(null);
             loadTools();
         } catch (e) { alert('Save failed: ' + e); }
@@ -163,13 +145,8 @@ function ToolsManager({ agentId, canManage = false }: { agentId: string; canMana
                                                 if (!confirm(t('agent.tools.confirmDelete', `Remove "${tool.display_name}" from this agent?`))) return;
                                                 setDeletingToolId(tool.id);
                                                 try {
-                                                    const token = localStorage.getItem('token');
-                                                    const res = await fetch(`/api/tools/agent-tool/${tool.agent_tool_id}`, {
-                                                        method: 'DELETE',
-                                                        headers: { Authorization: `Bearer ${token}` },
-                                                    });
-                                                    if (res.ok) await loadTools();
-                                                    else alert('Delete failed');
+                                                    await toolApi.deleteAgentTool(tool.agent_tool_id);
+                                                    await loadTools();
                                                 } catch (e) { alert('Delete failed: ' + e); }
                                                 setDeletingToolId(null);
                                             }}
@@ -334,13 +311,7 @@ function ToolsManager({ agentId, canManage = false }: { agentId: string; canMana
                                                 if (btn) btn.textContent = 'Testing...';
                                                 if (btn) (btn as HTMLButtonElement).disabled = true;
                                                 try {
-                                                    const token = localStorage.getItem('token');
-                                                    const res = await fetch('/api/tools/test-email', {
-                                                        method: 'POST',
-                                                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                                                        body: JSON.stringify({ config: configData }),
-                                                    });
-                                                    const data = await res.json();
+                                                    const data = await toolApi.testEmail(configData);
                                                     if (status) {
                                                         status.textContent = data.ok
                                                             ? `${data.imap}\n${data.smtp}`
@@ -378,8 +349,7 @@ function ToolsManager({ agentId, canManage = false }: { agentId: string; canMana
                         <div style={{ display: 'flex', gap: '8px', marginTop: '16px', justifyContent: 'flex-end' }}>
                             {Object.keys(configTool.agent_config || {}).length > 0 && (
                                 <button className="btn btn-ghost" style={{ color: 'var(--error)', marginRight: 'auto' }} onClick={async () => {
-                                    const token = localStorage.getItem('token');
-                                    await fetch(`/api/tools/agents/${agentId}/tool-config/${configTool.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ config: {} }) });
+                                    await toolApi.updateToolAgentConfig(agentId, configTool.id, {});
                                     setConfigTool(null); loadTools();
                                 }}>Reset to Global</button>
                             )}
@@ -425,7 +395,7 @@ const getAgentRelationOptions = (t: any) => [
 
 function fetchAuth<T>(url: string, options?: RequestInit): Promise<T> {
     const token = localStorage.getItem('token');
-    return fetch(`/api${url}`, {
+    return fetch(`${API_BASE}${url}`, {
         ...options,
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     }).then(r => r.json());
@@ -719,10 +689,7 @@ function AgentDetailInner() {
     const { data: reflectionSessions = [] } = useQuery({
         queryKey: ['reflection-sessions', id],
         queryFn: async () => {
-            const tkn = localStorage.getItem('token');
-            const res = await fetch(`/api/agents/${id}/sessions?scope=all`, { headers: { Authorization: `Bearer ${tkn}` } });
-            if (!res.ok) return [];
-            const all = await res.json();
+            const all = await sessionApi.list(id!, 'all');
             return all.filter((s: any) => s.source_channel === 'trigger');
         },
         enabled: !!id && activeTab === 'aware',
@@ -794,9 +761,9 @@ function AgentDetailInner() {
         if (!id) return;
         if (!silent) setSessionsLoading(true);
         try {
-            const tkn = localStorage.getItem('token');
-            const res = await fetch(`/api/agents/${id}/sessions?scope=mine`, { headers: { Authorization: `Bearer ${tkn}` } });
-            if (res.ok) { const data = await res.json(); setSessions(data); return data; }
+            const data = await sessionApi.list(id, 'mine');
+            setSessions(data);
+            return data;
         } catch { }
         if (!silent) setSessionsLoading(false);
         return [];
@@ -805,33 +772,18 @@ function AgentDetailInner() {
     const fetchAllSessions = async () => {
         if (!id) return;
         try {
-            const tkn = localStorage.getItem('token');
-            const res = await fetch(`/api/agents/${id}/sessions?scope=all`, { headers: { Authorization: `Bearer ${tkn}` } });
-            if (res.ok) {
-                const all = await res.json();
-                setAllSessions(all.filter((s: any) => s.source_channel !== 'trigger'));
-            }
+            const all = await sessionApi.list(id, 'all');
+            setAllSessions(all.filter((s: any) => s.source_channel !== 'trigger'));
         } catch { }
     };
 
     const createNewSession = async () => {
         try {
-            const tkn = localStorage.getItem('token');
-            const res = await fetch(`/api/agents/${id}/sessions`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tkn}` },
-                body: JSON.stringify({}),
-            });
-            if (res.ok) {
-                const newSess = await res.json();
-                setSessions(prev => [newSess, ...prev]);
-                setChatMessages([]);
-                setHistoryMsgs([]);
-                setActiveSession(newSess);
-            } else {
-                const err = await res.json().catch(() => ({ detail: `HTTP ${res.status}` }));
-                console.error('Failed to create session:', err);
-                alert(`Failed to create session: ${err.detail || res.status}`);
-            }
+            const newSess = await sessionApi.create(id!);
+            setSessions(prev => [newSess, ...prev]);
+            setChatMessages([]);
+            setHistoryMsgs([]);
+            setActiveSession(newSess);
         } catch (err: any) {
             console.error('Failed to create session:', err);
             alert(`Failed to create session: ${err.message || err}`);
@@ -840,9 +792,8 @@ function AgentDetailInner() {
 
     const deleteSession = async (sessionId: string) => {
         if (!confirm(t('chat.deleteConfirm', 'Delete this session and all its messages? This cannot be undone.'))) return;
-        const tkn = localStorage.getItem('token');
         try {
-            await fetch(`/api/agents/${id}/sessions/${sessionId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${tkn}` } });
+            await sessionApi.delete(id!, sessionId);
             // If deleted the active session, clear it
             if (activeSession?.id === sessionId) {
                 setActiveSession(null);
@@ -850,13 +801,12 @@ function AgentDetailInner() {
                 setHistoryMsgs([]);
             }
             // Refresh session lists
-            const r1 = await fetch(`/api/agents/${id}/sessions?scope=mine`, { headers: { Authorization: `Bearer ${tkn}` } });
-            if (r1.ok) setSessions(await r1.json());
-            const r2 = await fetch(`/api/agents/${id}/sessions?scope=all`, { headers: { Authorization: `Bearer ${tkn}` } });
-            if (r2.ok) {
-                const all2 = await r2.json();
-                setAllSessions(all2.filter((s: any) => s.source_channel !== 'trigger'));
-            }
+            const [data1, data2] = await Promise.all([
+                sessionApi.list(id!, 'mine'),
+                sessionApi.list(id!, 'all'),
+            ]);
+            setSessions(data1);
+            setAllSessions(data2.filter((s: any) => s.source_channel !== 'trigger'));
         } catch (e: any) {
             alert(e.message || 'Delete failed');
         }
@@ -867,10 +817,8 @@ function AgentDetailInner() {
         setHistoryMsgs([]);
         setActiveSession(sess);
         // Always load stored messages for the selected session
-        const tkn = localStorage.getItem('token');
-        const res = await fetch(`/api/agents/${id}/sessions/${sess.id}/messages`, { headers: { Authorization: `Bearer ${tkn}` } });
-        if (res.ok) {
-            const msgs = await res.json();
+        try {
+            const msgs = await sessionApi.messages(id!, sess.id);
             // Agent-to-agent sessions are always read-only
             const isAgentSession = sess.source_channel === 'agent' || sess.participant_type === 'agent';
             if (!isAgentSession && sess.user_id === String(currentUser?.id)) {
@@ -885,7 +833,7 @@ function AgentDetailInner() {
                 // Other user's session or agent-to-agent: read-only view
                 setHistoryMsgs(msgs);
             }
-        }
+        } catch { /* ignore */ }
     };
 
     // Websocket chat state (for 'me' conversation)
@@ -914,13 +862,8 @@ function AgentDetailInner() {
     const saveExpiry = async (permanent = false) => {
         setExpirySaving(true);
         try {
-            const token = localStorage.getItem('token');
-            const body = permanent ? { expires_at: null } : { expires_at: expiryValue ? new Date(expiryValue).toISOString() : null };
-            await fetch(`/api/agents/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify(body),
-            });
+            const body: any = permanent ? { expires_at: null } : { expires_at: expiryValue ? new Date(expiryValue).toISOString() : null };
+            await agentApi.update(id!, body);
             queryClient.invalidateQueries({ queryKey: ['agent', id] });
             setShowExpiryModal(false);
         } catch (e) { alert('Failed: ' + e); }
@@ -2338,19 +2281,13 @@ function AgentDetailInner() {
                                                                     setExpandedReflection(null);
                                                                     return;
                                                                 }
-                                                                setExpandedReflection(session.id);
-                                                                if (!reflectionMessages[session.id]) {
-                                                                    try {
-                                                                        const tkn = localStorage.getItem('token');
-                                                                        const res = await fetch(`/api/agents/${id}/sessions/${session.id}/messages`, {
-                                                                            headers: { Authorization: `Bearer ${tkn}` },
-                                                                        });
-                                                                        if (res.ok) {
-                                                                            const data = await res.json();
-                                                                            setReflectionMessages(prev => ({ ...prev, [session.id]: data }));
-                                                                        }
-                                                                    } catch { /* ignore */ }
-                                                                }
+                                                                 setExpandedReflection(session.id);
+                                                                 if (!reflectionMessages[session.id]) {
+                                                                     try {
+                                                                         const data = await sessionApi.messages(id!, session.id);
+                                                                         setReflectionMessages(prev => ({ ...prev, [session.id]: data }));
+                                                                     } catch { /* ignore */ }
+                                                                 }
                                                             }}
                                                             style={{
                                                                 padding: '10px 16px',
@@ -3449,18 +3386,13 @@ function AgentDetailInner() {
                             const isChinese = i18n.language?.startsWith('zh');
                             const { data: approvals = [], refetch: refetchApprovals } = useQuery({
                                 queryKey: ['agent-approvals', id],
-                                queryFn: () => fetchAuth<any[]>(`/agents/${id}/approvals`),
+                                queryFn: () => approvalApi.list(id!),
                                 enabled: !!id,
                                 refetchInterval: 15000,
                             });
                             const resolveMut = useMutation({
                                 mutationFn: async ({ approvalId, action }: { approvalId: string; action: string }) => {
-                                    const token = localStorage.getItem('token');
-                                    return fetch(`/api/agents/${id}/approvals/${approvalId}/resolve`, {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-                                        body: JSON.stringify({ action }),
-                                    });
+                                    return approvalApi.resolve(id!, approvalId, action);
                                 },
                                 onSuccess: () => {
                                     refetchApprovals();

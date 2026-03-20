@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { enterpriseApi, skillApi } from '../services/api';
+import { enterpriseApi, skillApi, API_BASE } from '../services/api';
 import PromptModal from '../components/PromptModal';
 import FileBrowser from '../components/FileBrowser';
 import type { FileBrowserApi } from '../components/FileBrowser';
@@ -12,7 +12,7 @@ import InvitationCodes from './InvitationCodes';
 // API helpers for enterprise endpoints
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     const token = localStorage.getItem('token');
-    const res = await fetch(`/api${url}`, {
+    const res = await fetch(`${API_BASE}${url}`, {
         ...options,
         headers: {
             'Content-Type': 'application/json',
@@ -1013,7 +1013,7 @@ export default function EnterpriseSettings() {
     useEffect(() => {
         if (activeTab !== 'tools') return;
         const token = localStorage.getItem('token');
-        fetch('/api/enterprise/system-settings/jina_api_key', { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${API_BASE}/enterprise/system-settings/jina_api_key`, { headers: { Authorization: `Bearer ${token}` } })
             .then(r => r.json())
             .then(d => { if (d.value?.api_key) setJinaKeyMasked(d.value.api_key.slice(0, 8) + '••••••••'); })
             .catch(() => { });
@@ -1021,7 +1021,7 @@ export default function EnterpriseSettings() {
     const saveJinaKey = async () => {
         setJinaKeySaving(true);
         const token = localStorage.getItem('token');
-        await fetch('/api/enterprise/system-settings/jina_api_key', {
+        await fetch(`${API_BASE}/enterprise/system-settings/jina_api_key`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({ value: { api_key: jinaKey } }),
@@ -1034,7 +1034,7 @@ export default function EnterpriseSettings() {
     };
     const clearJinaKey = async () => {
         const token = localStorage.getItem('token');
-        await fetch('/api/enterprise/system-settings/jina_api_key', {
+        await fetch(`${API_BASE}/enterprise/system-settings/jina_api_key`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({ value: {} }),
@@ -1086,7 +1086,7 @@ export default function EnterpriseSettings() {
                 const msg = `This model is used by ${agents.length} agent(s):\n\n${agents.join(', ')}\n\nDelete anyway? (their model config will be cleared)`;
                 if (confirm(msg)) {
                     // Retry with force
-                    const r2 = await fetch(`/api/enterprise/llm-models/${id}?force=true`, {
+                    const r2 = await fetch(`${API_BASE}/enterprise/llm-models/${id}?force=true`, {
                         method: 'DELETE',
                         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                     });
@@ -1839,7 +1839,7 @@ export default function EnterpriseSettings() {
                                                                 if (tool.name === 'jina_search' || tool.name === 'jina_read') {
                                                                     try {
                                                                         const token = localStorage.getItem('token');
-                                                                        const res = await fetch('/api/enterprise/system-settings/jina_api_key', { headers: { Authorization: `Bearer ${token}` } });
+                                                                         const res = await fetch(`${API_BASE}/enterprise/system-settings/jina_api_key`, { headers: { Authorization: `Bearer ${token}` } });
                                                                         const d = await res.json();
                                                                         if (d.value?.api_key) cfg.api_key = d.value.api_key;
                                                                     } catch { }
@@ -1908,7 +1908,7 @@ export default function EnterpriseSettings() {
                                                                     // Save api_key to system_settings (shared by both jina tools)
                                                                     if (editingConfig.api_key) {
                                                                         const token = localStorage.getItem('token');
-                                                                        await fetch('/api/enterprise/system-settings/jina_api_key', {
+                                                                        await fetch(`${API_BASE}/enterprise/system-settings/jina_api_key`, {
                                                                             method: 'PUT',
                                                                             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                                                                             body: JSON.stringify({ value: { api_key: editingConfig.api_key } }),

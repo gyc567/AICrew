@@ -17,10 +17,13 @@ const now = new Date()
 const buildTimestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}.${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`
 const version = `${majorVersion}+${buildTimestamp}`
 
+const gatewayApiUrl = process.env.VITE_GATEWAY_API_URL || ''
+
 export default defineConfig({
     plugins: [react()],
     define: {
         __APP_VERSION__: JSON.stringify(version),
+        __GATEWAY_API_URL__: JSON.stringify(gatewayApiUrl),
     },
     resolve: {
         alias: {

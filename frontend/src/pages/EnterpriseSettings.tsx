@@ -38,6 +38,23 @@ interface LLMProviderSpec {
     default_max_tokens: number;
 }
 
+const MODEL_NAME_HINTS: Record<string, { placeholder: string; examples: string }> = {
+    anthropic:    { placeholder: 'claude-sonnet-4-5',             examples: 'e.g. claude-sonnet-4-5, claude-3-5-sonnet-20241022' },
+    openai:       { placeholder: 'gpt-4o-mini',                  examples: 'e.g. gpt-4o-mini, gpt-4o, o3-mini' },
+    azure:        { placeholder: 'your-deployment-name',          examples: 'Use your Azure OpenAI deployment name' },
+    deepseek:     { placeholder: 'deepseek-chat',                 examples: 'e.g. deepseek-chat, deepseek-reasoner' },
+    minimax:      { placeholder: 'MiniMax-M2.5',                  examples: '⚠️ Case & hyphens required: MiniMax-M2.7, MiniMax-M2.5, MiniMax-M2.1' },
+    qwen:         { placeholder: 'qwen-plus',                    examples: 'e.g. qwen-plus, qwen-turbo, qwen-long' },
+    zhipu:        { placeholder: 'glm-4',                        examples: 'e.g. glm-4, glm-4-flash, glm-4-plus' },
+    gemini:       { placeholder: 'gemini-2.0-flash',             examples: 'e.g. gemini-2.0-flash, gemini-1.5-pro' },
+    openrouter:   { placeholder: 'anthropic/claude-3.5-sonnet',  examples: 'e.g. anthropic/claude-3.5-sonnet, openai/gpt-4o' },
+    kimi:         { placeholder: 'moonshot-v1-8k',               examples: 'e.g. moonshot-v1-8k, moonshot-v1-32k' },
+    vllm:         { placeholder: 'your-model-name',              examples: 'Use your vLLM server model name' },
+    ollama:       { placeholder: 'llama3',                      examples: 'e.g. llama3, qwen2.5, mistral' },
+    sglang:       { placeholder: 'your-model-name',              examples: 'Use your SGLang server model name' },
+    custom:       { placeholder: 'your-model-name',             examples: 'Check your provider docs for the exact model ID' },
+};
+
 const FALLBACK_LLM_PROVIDERS: LLMProviderSpec[] = [
     { provider: 'anthropic', display_name: 'Anthropic', protocol: 'anthropic', default_base_url: 'https://api.anthropic.com', supports_tool_choice: false, default_max_tokens: 8192 },
     { provider: 'openai', display_name: 'OpenAI', protocol: 'openai_compatible', default_base_url: 'https://api.openai.com/v1', supports_tool_choice: true, default_max_tokens: 16384 },
@@ -1177,7 +1194,10 @@ export default function EnterpriseSettings() {
                                     </div>
                                     <div className="form-group">
                                         <label className="form-label">Model</label>
-                                        <input className="form-input" placeholder="claude-sonnet-4-5" value={modelForm.model} onChange={e => setModelForm({ ...modelForm, model: e.target.value })} />
+                                        <input className="form-input" placeholder={MODEL_NAME_HINTS[modelForm.provider]?.placeholder || 'model-id'} value={modelForm.model} onChange={e => setModelForm({ ...modelForm, model: e.target.value })} />
+                                        {MODEL_NAME_HINTS[modelForm.provider] && (
+                                            <div style={{ fontSize: '11px', color: modelForm.provider === 'minimax' ? '#f59e0b' : 'var(--text-tertiary)', marginTop: '4px' }}>{MODEL_NAME_HINTS[modelForm.provider].examples}</div>
+                                        )}
                                     </div>
                                     <div className="form-group">
                                         <label className="form-label">{t('enterprise.llm.label')}</label>
@@ -1214,12 +1234,7 @@ export default function EnterpriseSettings() {
                                             const token = localStorage.getItem('token');
                                             const testData: any = { provider: modelForm.provider, model: modelForm.model, base_url: modelForm.base_url || undefined };
                                             if (modelForm.api_key) testData.api_key = modelForm.api_key;
-                                            const res = await fetch('/api/enterprise/llm-test', {
-                                                method: 'POST',
-                                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                                                body: JSON.stringify(testData),
-                                            });
-                                            const result = await res.json();
+                                            const result = await enterpriseApi.testLLM(testData);
                                             if (result.success) {
                                                 if (btn) { btn.textContent = `OK (${result.latency_ms}ms)`; btn.style.color = 'var(--success)'; }
                                                 setTimeout(() => { if (btn) { btn.textContent = origText; btn.style.color = ''; } }, 3000);
@@ -1266,7 +1281,10 @@ export default function EnterpriseSettings() {
                                                 </div>
                                                 <div className="form-group">
                                                     <label className="form-label">Model</label>
-                                                    <input className="form-input" placeholder="claude-sonnet-4-5" value={modelForm.model} onChange={e => setModelForm({ ...modelForm, model: e.target.value })} />
+                                                    <input className="form-input" placeholder={MODEL_NAME_HINTS[modelForm.provider]?.placeholder || 'model-id'} value={modelForm.model} onChange={e => setModelForm({ ...modelForm, model: e.target.value })} />
+                                                    {MODEL_NAME_HINTS[modelForm.provider] && (
+                                                        <div style={{ fontSize: '11px', color: modelForm.provider === 'minimax' ? '#f59e0b' : 'var(--text-tertiary)', marginTop: '4px' }}>{MODEL_NAME_HINTS[modelForm.provider].examples}</div>
+                                                    )}
                                                 </div>
                                                 <div className="form-group">
                                                     <label className="form-label">{t('enterprise.llm.label')}</label>
@@ -1300,16 +1318,10 @@ export default function EnterpriseSettings() {
                                                     const origText = btn?.textContent || '';
                                                     if (btn) btn.textContent = 'Testing...';
                                                     try {
-                                                        const token = localStorage.getItem('token');
                                                         const testData: any = { provider: modelForm.provider, model: modelForm.model, base_url: modelForm.base_url || undefined };
                                                         if (modelForm.api_key) testData.api_key = modelForm.api_key;
                                                         testData.model_id = editingModelId;
-                                                        const res = await fetch('/api/enterprise/llm-test', {
-                                                            method: 'POST',
-                                                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                                                            body: JSON.stringify(testData),
-                                                        });
-                                                        const result = await res.json();
+                                                        const result = await enterpriseApi.testLLM(testData);
                                                         if (result.success) {
                                                             if (btn) { btn.textContent = `OK (${result.latency_ms}ms)`; btn.style.color = 'var(--success)'; }
                                                             setTimeout(() => { if (btn) { btn.textContent = origText; btn.style.color = ''; } }, 3000);

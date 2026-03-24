@@ -959,6 +959,99 @@ function AgentDetailInner() {
     const [settingsError, setSettingsError] = useState('');
     const settingsInitRef = useRef(false);
 
+    // OpenClaw API Key state
+    const [showResetKeyModal, setShowResetKeyModal] = useState(false);
+    const [resettingKey, setResettingKey] = useState(false);
+    const [newApiKey, setNewApiKey] = useState<string | null>(null);
+    const [showKeyResult, setShowKeyResult] = useState(false);
+    const [keyResetError, setKeyResetError] = useState('');
+
+    // Build OpenClaw sync instruction
+    const buildOpenclawSyncInstruction = (apiKey: string, baseUrl: string) => {
+        return `Please create a skill file at skills/ai-crew-crew_sync.md with the following content, then add "Check AI Crew inbox using the ai-crew-crew_sync skill and process any pending messages" to your HEARTBEAT.md:
+
+---
+name: ai-crew-crew_sync
+description: Sync with AI Crew platform — check inbox, submit results, and send messages.
+---
+
+# AI Crew Sync
+
+## When to use
+Check for new messages from the AI Crew platform during every heartbeat cycle.
+You can also proactively send messages to people and agents in your relationships.
+
+## Instructions
+
+### 1. Check inbox
+Make an HTTP GET request:
+- URL: ${baseUrl}/api/gateway/poll
+- Header: X-Api-Key: ${apiKey}
+
+The response contains a messages array. Each message includes:
+- id — unique message ID (use this for reporting)
+- content — the message text
+- sender_user_name — name of the AI Crew user who sent it
+- sender_user_id — unique ID of the sender
+- conversation_id — the conversation this message belongs to
+- history — array of previous messages in this conversation for context
+
+The response also contains a relationships array describing your colleagues:
+- name — the person or agent name
+- type — "human" or "agent"
+- role — relationship type (e.g. collaborator, supervisor)
+- channels — available communication channels (e.g. ["feishu"], ["agent"])
+
+IMPORTANT: Use the history array to understand conversation context before replying.
+Different sender_user_name values mean different people — address them accordingly.
+
+### 2. Report results
+For each completed message, make an HTTP POST request:
+- URL: ${baseUrl}/api/gateway/report
+- Header: X-Api-Key: ${apiKey}
+- Header: Content-Type: application/json
+- Body: {"message_id": "<id from the message>", "result": "<your response>"}
+
+### 3. Send a message to someone
+To proactively contact a person or agent, make an HTTP POST request:
+- URL: ${baseUrl}/api/gateway/send-message
+- Header: X-Api-Key: ${apiKey}
+- Header: Content-Type: application/json
+- Body: {"target": "<name of person or agent>", "content": "<your message>"}
+
+The system auto-detects the best channel. For agents, the reply appears in your next poll.
+For humans, the message is delivered via their available channel (e.g. Feishu).`;
+    };
+
+    // Reset API Key handler
+    const handleResetApiKey = async () => {
+        if (!id) return;
+        setResettingKey(true);
+        setKeyResetError('');
+        try {
+            const result = await agentApi.generateApiKey(id);
+            setNewApiKey(result.api_key);
+            setShowKeyResult(true);
+            setShowResetKeyModal(false);
+            queryClient.invalidateQueries({ queryKey: ['agent', id] });
+        } catch (err: any) {
+            setKeyResetError(err?.message || 'Failed to reset API key');
+        } finally {
+            setResettingKey(false);
+        }
+    };
+
+    // Get connection status text
+    const getOpenclawConnectionStatus = () => {
+        const lastSeen = (agent as any)?.openclaw_last_seen;
+        if (!lastSeen) return { status: 'disconnected', text: 'Not connected', color: 'var(--error)' };
+        const elapsed = Date.now() - new Date(lastSeen).getTime();
+        if (elapsed > 60 * 60 * 1000) return { status: 'disconnected', text: 'Disconnected', color: 'var(--error)' };
+        const mins = Math.floor(elapsed / 60000);
+        if (mins < 1) return { status: 'connected', text: 'Just now', color: 'var(--success)' };
+        return { status: 'connected', text: `${mins}m ago`, color: 'var(--success)' };
+    };
+
     // Sync settings form from server data on load
     useEffect(() => {
         if (agent && !settingsInitRef.current) {
@@ -3637,6 +3730,111 @@ function AgentDetailInner() {
                                     </div>
                                 </div>
 
+                                {/* OpenClaw API Key Card */}
+                                {(agent as any)?.agent_type === 'openclaw' && (
+                                    (() => {
+                                        const connStatus = getOpenclawConnectionStatus();
+                                        const apiKeyMasked = (agent as any)?.api_key_hash ? '****' + ((agent as any)?.api_key_hash || '').slice(-4) : 'Not configured';
+                                        return (
+                                            <div className="card" style={{ marginBottom: '12px', border: connStatus.status === 'connected' ? '1px solid var(--success)' : '1px solid var(--border-subtle)' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                                    <div>
+                                                        <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            🔗 OpenClaw API Key
+                                                        </h4>
+                                                        <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+                                                            用于连接 OpenClaw 实例的凭证
+                                                        </p>
+                                                    </div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <span style={{ fontSize: '12px', color: connStatus.color, fontWeight: 500 }}>
+                                                            {connStatus.status === 'connected' ? '●' : '○'} {connStatus.text}
+                                                        </span>
+                                                        <button 
+                                                            className="btn btn-secondary" 
+                                                            style={{ padding: '6px 12px', fontSize: '12px' }}
+                                                            onClick={() => setShowResetKeyModal(true)}
+                                                        >
+                                                            重置 Key
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div style={{ marginTop: '12px', padding: '8px 12px', background: 'var(--bg-secondary)', borderRadius: '6px', fontFamily: 'monospace', fontSize: '13px' }}>
+                                                    {apiKeyMasked}
+                                                </div>
+                                                <p style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginTop: '8px' }}>
+                                                    最近连接：{(agent as any)?.openclaw_last_seen ? new Date((agent as any).openclaw_last_seen).toLocaleString() : '从未'}
+                                                </p>
+                                            </div>
+                                        );
+                                    })()
+                                )}
+
+                                {/* Reset Key Result */}
+                                {showKeyResult && newApiKey && (
+                                    <div className="card" style={{ marginBottom: '12px', border: '1px solid var(--success)', background: 'rgba(16,185,129,0.05)' }}>
+                                        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                                            <div style={{ fontSize: '32px', marginBottom: '12px' }}>✅</div>
+                                            <h3 style={{ fontWeight: 600, marginBottom: '8px' }}>API Key 已重置</h3>
+                                            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                                                旧 Key 已失效，请在下方复制新 Key 并更新你的 OpenClaw 实例配置。
+                                            </p>
+                                        </div>
+                                        
+                                        <div style={{ marginBottom: '20px' }}>
+                                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '6px' }}>
+                                                新 API Key（仅显示一次）
+                                            </label>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <code style={{
+                                                    flex: 1, padding: '10px 12px', background: 'var(--bg-secondary)', 
+                                                    borderRadius: '6px', fontSize: '13px', fontFamily: 'monospace',
+                                                    border: '1px solid var(--border-default)', wordBreak: 'break-all',
+                                                }}>{newApiKey}</code>
+                                                <button className="btn btn-secondary" onClick={() => navigator.clipboard.writeText(newApiKey)}>
+                                                    复制
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ padding: '12px', background: 'var(--bg-elevated)', borderRadius: '8px', marginBottom: '16px' }}>
+                                            <h4 style={{ fontSize: '13px', fontWeight: 600, marginBottom: '12px' }}>📋 下一步操作</h4>
+                                            <ol style={{ fontSize: '12px', color: 'var(--text-secondary)', paddingLeft: '20px', lineHeight: '1.8' }}>
+                                                <li>复制上方的 API Key</li>
+                                                <li>在 OpenClaw 实例中更新 <code style={{ fontSize: '11px' }}>skills/ai-crew-crew_sync.md</code> 文件中的 <code style={{ fontSize: '11px' }}>X-Api-Key</code> 值</li>
+                                                <li>执行 <code style={{ fontSize: '11px' }}>openclaw gateway restart</code> 重启网关</li>
+                                                <li>回到此页面确认「连接状态」已更新</li>
+                                            </ol>
+                                        </div>
+
+                                        <button 
+                                            className="btn btn-primary" 
+                                            style={{ width: '100%', marginBottom: '8px' }}
+                                            onClick={() => navigator.clipboard.writeText(buildOpenclawSyncInstruction(newApiKey, window.location.origin))}
+                                        >
+                                            复制完整配置指令（推荐）
+                                        </button>
+                                        
+                                        <button 
+                                            className="btn btn-ghost" 
+                                            style={{ width: '100%' }}
+                                            onClick={() => { setShowKeyResult(false); setNewApiKey(null); }}
+                                        >
+                                            完成
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* Reset Key Error */}
+                                {keyResetError && (
+                                    <div className="card" style={{ marginBottom: '12px', border: '1px solid var(--error)', background: 'rgba(239,68,68,0.05)' }}>
+                                        <p style={{ color: 'var(--error)', fontSize: '13px' }}>{keyResetError}</p>
+                                        <button className="btn btn-ghost" style={{ marginTop: '8px' }} onClick={() => setKeyResetError('')}>
+                                            关闭
+                                        </button>
+                                    </div>
+                                )}
+
                                 {/* Model Selection — native agents only */}
                                 {(agent as any)?.agent_type !== 'openclaw' && (
                                 <div className="card" style={{ marginBottom: '12px' }}>
@@ -4285,6 +4483,22 @@ function AgentDetailInner() {
                         }
                     }
                 }}
+            />
+
+            {/* OpenClaw API Key Reset Confirmation */}
+            <ConfirmModal
+                open={showResetKeyModal}
+                title="确认重置 API Key？"
+                message={`⚠️ 警告：此操作会导致旧 Key 立即失效！
+                
+• 正在运行的 OpenClaw 实例会立即断开连接
+• 你需要立即更新 OpenClaw 实例中的配置
+• 新 Key 只会显示一次，请立即复制保存`}
+                confirmLabel={resettingKey ? '重置中...' : '确认重置'}
+                danger
+                onCancel={() => setShowResetKeyModal(false)}
+                onConfirm={handleResetApiKey}
+                disabled={resettingKey}
             />
 
             {

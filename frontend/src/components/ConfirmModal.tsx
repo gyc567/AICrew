@@ -7,11 +7,12 @@ interface ConfirmModalProps {
     confirmLabel?: string;
     cancelLabel?: string;
     danger?: boolean;
+    disabled?: boolean;
     onConfirm: () => void;
     onCancel: () => void;
 }
 
-export default function ConfirmModal({ open, title, message, confirmLabel = '确定', cancelLabel = '取消', danger, onConfirm, onCancel }: ConfirmModalProps) {
+export default function ConfirmModal({ open, title, message, confirmLabel = '确定', cancelLabel = '取消', danger, onConfirm, onCancel, disabled }: ConfirmModalProps & { disabled?: boolean }) {
     const btnRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
@@ -28,14 +29,14 @@ export default function ConfirmModal({ open, title, message, confirmLabel = '确
         }} onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}>
             <div style={{
                 background: 'var(--bg-primary)', borderRadius: '12px', padding: '24px',
-                width: '380px', maxWidth: '90vw', border: '1px solid var(--border-subtle)',
+                width: '420px', maxWidth: '90vw', border: '1px solid var(--border-subtle)',
                 boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
             }}>
                 <h4 style={{ marginBottom: '12px', fontSize: '15px' }}>{title}</h4>
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: 1.5 }}>{message}</p>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: 1.6, whiteSpace: 'pre-line' }}>{message}</p>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                     <button className="btn btn-secondary" onClick={onCancel}>{cancelLabel}</button>
-                    <button ref={btnRef} className={danger ? 'btn btn-danger' : 'btn btn-primary'} onClick={onConfirm}>{confirmLabel}</button>
+                    <button ref={btnRef} className={danger ? 'btn btn-danger' : 'btn btn-primary'} onClick={onConfirm} disabled={disabled}>{confirmLabel}</button>
                 </div>
             </div>
         </div>

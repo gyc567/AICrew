@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "openspace": {
+      "command": "openspace-mcp",
+      "env": {
+        "OPENSPACE_HOST_SKILL_DIRS": "/home/admin/.openclaw/skills",
+        "OPENSPACE_WORKSPACE": "/home/admin/code/OpenSpace"
+      }
+    }
+  }
+}
